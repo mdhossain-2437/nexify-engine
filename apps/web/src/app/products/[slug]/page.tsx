@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { AddToCartButton } from './add-to-cart-button'
+import { JsonLd } from '@/components/json-ld'
+import { generateProductSchema, generateBreadcrumbSchema } from '@/lib/schema-markup'
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -61,6 +63,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
       </nav>
+
+      <JsonLd data={generateProductSchema({
+        title: product.title,
+        slug: product.slug,
+        description: product.seo?.description || product.title,
+        price: product.price,
+        salePrice: product.salePrice,
+        stock: product.stock,
+        sku: product.sku,
+        images: product.images,
+        category: product.category,
+      })} />
+      <JsonLd data={generateBreadcrumbSchema([
+        { name: 'Home', url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000' },
+        { name: 'Products', url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products` },
+        { name: product.title, url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products/${product.slug}` },
+      ])} />
 
       <main className="container-custom section-padding">
         {/* Breadcrumb */}
