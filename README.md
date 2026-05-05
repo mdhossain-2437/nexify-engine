@@ -173,7 +173,7 @@ pnpm db:seed
 - `pnpm typecheck` — strict TypeScript across all packages
 - `pnpm test` — vitest unit tests (cart store coverage)
 - `pnpm format` / `pnpm format:check` — Prettier
-- GitHub Actions CI runs install / format / lint / typecheck / test / build on every PR
+- A ready-to-go GitHub Actions workflow lives at `ci-workflow.yml.example` — drop it into `.github/workflows/ci.yml` to run install / format / lint / typecheck / test / build on every PR
 
 ## Security notes
 
