@@ -1,8 +1,14 @@
 import Link from 'next/link'
+import { JsonLd } from '@/components/json-ld'
+import { generateWebsiteSchema } from '@/lib/schema-markup'
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
+      <JsonLd data={generateWebsiteSchema({
+        siteName: 'Nexify Engine',
+        siteDescription: 'Modern multi-tenant CMS and ecommerce platform',
+      })} />
       {/* Hero Section */}
       <header className="bg-gradient-to-br from-blue-600 to-indigo-800 text-white">
         <nav className="container-custom py-4 flex items-center justify-between">

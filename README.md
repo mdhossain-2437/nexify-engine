@@ -118,11 +118,50 @@ pnpm db:seed
 - Blog pages
 - Contact page
 
+### Payments (Stripe)
+- Stripe Checkout integration for card payments
+- Webhook handler for payment confirmation (`checkout.session.completed`, `checkout.session.expired`)
+- Automatic order status updates on payment events
+- Cash on Delivery fallback
+- Payment records with transaction tracking
+- API endpoints: `POST /api/stripe/checkout`, `POST /api/stripe/webhook`
+
 ### SEO
 - Dynamic meta tags per page/product
 - OpenGraph support
 - SEO fields on all content types
 - Server-side rendering for search engine indexing
+- Auto-generated XML sitemap (`/sitemap.xml`) with products, pages, blog posts
+- Dynamic `robots.txt` with crawl directives
+- JSON-LD schema markup (Product, WebSite, BreadcrumbList, BlogPosting)
+
+### Analytics Dashboard
+- Revenue overview (total, monthly trends)
+- Order statistics by status
+- Product inventory summary
+- Customer count and average order value
+- Recent orders table
+- Bar chart for monthly revenue trends
+- Access at `/admin/analytics`
+- API endpoint: `GET /api/analytics`
+
+## Environment Variables
+
+### Admin (`apps/admin/.env`)
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URI` | PostgreSQL connection string |
+| `PAYLOAD_SECRET` | Payload CMS secret (min 32 chars) |
+| `STRIPE_SECRET_KEY` | Stripe secret key (optional) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret (optional) |
+| `NEXT_PUBLIC_STRIPE_PUBLIC_KEY` | Stripe publishable key (optional) |
+
+### Web (`apps/web/.env`)
+| Variable | Description |
+|----------|-------------|
+| `PAYLOAD_API_URL` | Payload CMS API URL (server-side) |
+| `NEXT_PUBLIC_API_URL` | Payload CMS API URL (client-side) |
+| `NEXT_PUBLIC_APP_URL` | Public storefront URL |
 
 ## License
 

@@ -12,7 +12,11 @@ import { Orders } from './collections/Orders'
 import { Pages } from './collections/Pages'
 import { BlogPosts } from './collections/BlogPosts'
 import { Media } from './collections/Media'
+import { Payments } from './collections/Payments'
 import { TenantSettings } from './globals/TenantSettings'
+import { stripeCheckoutHandler } from './endpoints/stripe-checkout'
+import { stripeWebhookHandler } from './endpoints/stripe-webhook'
+import { analyticsHandler } from './endpoints/analytics'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -34,9 +38,28 @@ export default buildConfig({
     Pages,
     BlogPosts,
     Media,
+    Payments,
   ],
 
   globals: [TenantSettings],
+
+  endpoints: [
+    {
+      path: '/stripe/checkout',
+      method: 'post',
+      handler: stripeCheckoutHandler,
+    },
+    {
+      path: '/stripe/webhook',
+      method: 'post',
+      handler: stripeWebhookHandler,
+    },
+    {
+      path: '/analytics',
+      method: 'get',
+      handler: analyticsHandler,
+    },
+  ],
 
   editor: lexicalEditor(),
 
