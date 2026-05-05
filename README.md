@@ -1,1 +1,129 @@
 # Nexify Engine
+
+A modern **multi-tenant CMS + ecommerce SaaS platform** built with Next.js, Payload CMS, and PostgreSQL.
+
+## Architecture
+
+```
+User Browser
+     ↓
+Next.js Storefront (apps/web) ← Port 3000
+     ↓
+Payload CMS API (apps/admin) ← Port 3001
+     ↓
+PostgreSQL + Redis + Search + Storage
+```
+
+## Tech Stack
+
+- **Frontend:** Next.js 15 (App Router), React 19, Tailwind CSS
+- **Backend/CMS:** Payload CMS 3.x
+- **Database:** PostgreSQL
+- **Styling:** Tailwind CSS + custom theme variables
+- **State Management:** Zustand (cart/session)
+- **Monorepo:** Turborepo + pnpm workspaces
+
+## Project Structure
+
+```
+nexify-engine/
+├── apps/
+│   ├── admin/          # Payload CMS admin panel + API (port 3001)
+│   └── web/            # Next.js public storefront (port 3000)
+├── packages/
+│   └── types/          # Shared TypeScript types
+├── turbo.json          # Turborepo config
+└── pnpm-workspace.yaml
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm 9+
+- PostgreSQL 15+
+
+### Setup
+
+1. Clone the repo and install dependencies:
+```bash
+pnpm install
+```
+
+2. Set up environment variables:
+```bash
+cp apps/admin/.env.example apps/admin/.env
+cp apps/web/.env.example apps/web/.env
+```
+
+3. Start PostgreSQL and create the database:
+```bash
+createdb nexify
+```
+
+4. Run development servers:
+```bash
+pnpm dev
+```
+
+5. Seed the database with demo data:
+```bash
+pnpm db:seed
+```
+
+### Default Credentials
+
+- **Super Admin:** admin@nexify.com / admin123456
+- **Tenant Admin:** tenant@nexify.com / tenant123456
+
+## Multi-Tenant Model
+
+- Single database, shared schema with `tenant_id` isolation
+- Subdomain-based tenant resolution (e.g., `demo.nexify.com`)
+- Custom domain support
+- Per-tenant theme configuration
+
+## Roles
+
+| Role | Access |
+|------|--------|
+| Super Admin | Full platform access, tenant management |
+| Tenant Admin | Full access to own tenant's data |
+| Staff | Limited access within tenant |
+| Customer | Public storefront + order history |
+
+## Core Features
+
+### Super Admin
+- Tenant creation and management
+- Plan assignment and storage limits
+- Global system settings
+
+### Client Admin (per tenant)
+- Product CRUD with variants, SKUs, images
+- Category management
+- Order management with status tracking
+- Page builder with content blocks (Hero, Text, Image, Product Grid, Banner, Testimonials, CTA, FAQ)
+- Blog management
+- SEO settings per page/product
+- Theme configuration
+
+### Public Storefront
+- Homepage with dynamic content blocks
+- Product listing with category filtering
+- Product detail pages with variant selection
+- Shopping cart (Zustand + localStorage)
+- Checkout flow
+- Blog pages
+- Contact page
+
+### SEO
+- Dynamic meta tags per page/product
+- OpenGraph support
+- SEO fields on all content types
+- Server-side rendering for search engine indexing
+
+## License
+
+Private - All rights reserved.
