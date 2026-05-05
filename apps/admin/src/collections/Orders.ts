@@ -38,7 +38,18 @@ export const Orders: CollectionConfig = {
       name: 'customer',
       type: 'relationship',
       relationTo: 'users',
-      required: true,
+      admin: {
+        description:
+          'Authenticated user who placed the order. Empty for guest checkouts.',
+      },
+    },
+    {
+      name: 'customerEmail',
+      type: 'email',
+      admin: {
+        description:
+          'Email captured at checkout. Always populated, even for guests.',
+      },
     },
     {
       name: 'items',
