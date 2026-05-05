@@ -1,26 +1,56 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { useCartStore } from '@/lib/cart-store'
-import { useState } from 'react'
+import { useHydrated } from '@/lib/use-hydrated'
+import { formatPrice } from '@/lib/format'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
+type PaymentMethod = 'cod' | 'stripe'
+
 export default function CheckoutPage() {
-  const { items, getTotalPrice, clearCart } = useCartStore()
+  const items = useCartStore((state) => state.items)
+  const total = useCartStore((state) => state.getTotalPrice())
+  const clearCart = useCartStore((state) => state.clearCart)
+
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [paymentMethod, setPaymentMethod] = useState('cod')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod')
+
+  const hydrated = useHydrated()
+
+  useEffect(() => {
+    if (error) {
+      const timer = window.setTimeout(() => setError(null), 8000)
+      return () => window.clearTimeout(timer)
+    }
+  }, [error])
+
+  if (!hydrated) {
+    return (
+      <div className="container-custom section-padding">
+        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+      </div>
+    )
+  }
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h1 className="text-3xl font-bold mb-4">Order Placed Successfully!</h1>
-          <p className="text-gray-600 mb-8">Thank you for your purchase. You will receive an email confirmation shortly.</p>
-          <Link href="/products" className="btn-primary">Continue Shopping</Link>
+      <div className="container-custom section-padding">
+        <div className="mx-auto max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-3xl text-white">
+            ✓
+          </div>
+          <h1 className="text-2xl font-bold text-emerald-900">Order placed!</h1>
+          <p className="mt-2 text-sm text-emerald-800">
+            Thank you for your purchase. We&apos;ve sent you a confirmation email.
+          </p>
+          <Link href="/products" className="btn-primary mt-6">
+            Continue shopping
+          </Link>
         </div>
       </div>
     )
@@ -28,10 +58,13 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 text-lg mb-4">Your cart is empty.</p>
-          <Link href="/products" className="btn-primary">Browse Products</Link>
+      <div className="container-custom section-padding">
+        <div className="mx-auto max-w-md rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center">
+          <h1 className="text-2xl font-bold text-gray-900">Your cart is empty</h1>
+          <p className="mt-2 text-sm text-gray-500">Add a product before checking out.</p>
+          <Link href="/products" className="btn-primary mt-6">
+            Browse products
+          </Link>
         </div>
       </div>
     )
@@ -46,13 +79,13 @@ export default function CheckoutPage() {
     const formData = new FormData(form)
 
     const shippingAddress = {
-      fullName: formData.get('fullName') as string,
-      phone: formData.get('phone') as string,
-      addressLine1: formData.get('addressLine1') as string,
-      addressLine2: (formData.get('addressLine2') as string) || '',
-      city: formData.get('city') as string,
-      postalCode: formData.get('postalCode') as string,
-      country: formData.get('country') as string,
+      fullName: String(formData.get('fullName') ?? ''),
+      phone: String(formData.get('phone') ?? ''),
+      addressLine1: String(formData.get('addressLine1') ?? ''),
+      addressLine2: String(formData.get('addressLine2') ?? ''),
+      city: String(formData.get('city') ?? ''),
+      postalCode: String(formData.get('postalCode') ?? ''),
+      country: String(formData.get('country') ?? ''),
     }
 
     if (paymentMethod === 'stripe') {
@@ -62,29 +95,28 @@ export default function CheckoutPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             items: items.map((item) => ({
+              productId: item.productId,
               title: item.title,
               price: item.price,
               quantity: item.quantity,
             })),
-            tenantId: '1',
-            customerEmail: formData.get('email') as string,
+            tenantId: process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || '1',
+            customerEmail: String(formData.get('email') ?? ''),
             shippingAddress,
             successUrl: `${window.location.origin}/order-confirmation`,
             cancelUrl: window.location.href,
           }),
         })
 
-        const data = await res.json()
+        const data = (await res.json()) as { url?: string; error?: string }
 
-        if (!res.ok) {
+        if (!res.ok || !data.url) {
           throw new Error(data.error || 'Failed to create checkout session')
         }
 
-        if (data.url) {
-          clearCart()
-          window.location.href = data.url
-          return
-        }
+        clearCart()
+        window.location.href = data.url
+        return
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Payment failed')
         setLoading(false)
@@ -98,137 +130,147 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <nav className="bg-white border-b sticky top-0 z-50">
-        <div className="container-custom py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-primary">Nexify Engine</Link>
-          <Link href="/cart" className="text-gray-600 hover:text-primary">Back to Cart</Link>
+    <div className="container-custom section-padding">
+      <h1 className="mb-8 text-3xl font-bold">Checkout</h1>
+
+      {error && (
+        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {error}
         </div>
-      </nav>
+      )}
 
-      <main className="container-custom section-padding">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <fieldset className="rounded-2xl border border-gray-100 bg-white p-6">
+              <legend className="px-2 text-lg font-semibold">Shipping information</legend>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field label="Full name" name="fullName" autoComplete="name" required />
+                <Field label="Phone" name="phone" type="tel" autoComplete="tel" required />
+                <Field label="Email" name="email" type="email" autoComplete="email" className="md:col-span-2" required />
+                <Field label="Address line 1" name="addressLine1" autoComplete="address-line1" className="md:col-span-2" required />
+                <Field label="Address line 2" name="addressLine2" autoComplete="address-line2" className="md:col-span-2" />
+                <Field label="City" name="city" autoComplete="address-level2" required />
+                <Field label="Postal code" name="postalCode" autoComplete="postal-code" required />
+                <Field label="Country" name="country" autoComplete="country-name" defaultValue="United States" required />
+              </div>
+            </fieldset>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
+            <fieldset className="rounded-2xl border border-gray-100 bg-white p-6">
+              <legend className="px-2 text-lg font-semibold">Payment method</legend>
+              <div className="space-y-3">
+                <PaymentOption
+                  value="cod"
+                  selected={paymentMethod}
+                  onChange={setPaymentMethod}
+                  title="Cash on delivery"
+                  description="Pay in cash when your order is delivered."
+                />
+                <PaymentOption
+                  value="stripe"
+                  selected={paymentMethod}
+                  onChange={setPaymentMethod}
+                  title="Credit / debit card"
+                  description="Secure card payment via Stripe."
+                />
+              </div>
+            </fieldset>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              {/* Shipping Info */}
-              <div className="bg-white rounded-xl border p-6">
-                <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input type="text" name="fullName" required className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <input type="tel" name="phone" required className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" name="email" required className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1</label>
-                    <input type="text" name="addressLine1" required className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
-                    <input type="text" name="addressLine2" className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                    <input type="text" name="city" required className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-                    <input type="text" name="postalCode" required className="w-full border rounded-lg px-4 py-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                    <input type="text" name="country" required className="w-full border rounded-lg px-4 py-2" defaultValue="Bangladesh" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="bg-white rounded-xl border p-6">
-                <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:border-primary">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="cod"
-                      checked={paymentMethod === 'cod'}
-                      onChange={() => setPaymentMethod('cod')}
-                      className="text-primary"
-                    />
-                    <div>
-                      <span className="font-medium">Cash on Delivery</span>
-                      <p className="text-sm text-gray-500">Pay when you receive your order</p>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:border-primary">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="stripe"
-                      checked={paymentMethod === 'stripe'}
-                      onChange={() => setPaymentMethod('stripe')}
-                      className="text-primary"
-                    />
-                    <div>
-                      <span className="font-medium">Credit/Debit Card (Stripe)</span>
-                      <p className="text-sm text-gray-500">Secure payment via Stripe</p>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-gray-50 rounded-xl p-6 sticky top-24">
-                <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-                <div className="space-y-3 mb-4">
-                  {items.map((item) => (
-                    <div key={`${item.productId}-${item.variantIndex}`} className="flex justify-between text-sm">
-                      <span className="text-gray-600">
-                        {item.title} x{item.quantity}
-                      </span>
-                      <span>${(item.price * item.quantity).toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t pt-4 mb-6">
-                  <div className="flex justify-between">
-                    <span className="text-lg font-bold">Total</span>
-                    <span className="text-lg font-bold">${getTotalPrice().toFixed(2)}</span>
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary block text-center w-full disabled:opacity-50"
+          <aside className="h-fit rounded-2xl border border-gray-100 bg-white p-6 lg:sticky lg:top-24">
+            <h2 className="text-lg font-bold">Order summary</h2>
+            <ul className="mt-4 space-y-2 text-sm">
+              {items.map((item) => (
+                <li
+                  key={`${item.productId}-${item.variantIndex ?? 'base'}`}
+                  className="flex justify-between gap-4"
                 >
-                  {loading
-                    ? 'Processing...'
-                    : paymentMethod === 'stripe'
-                      ? 'Pay with Stripe'
-                      : 'Place Order'}
-                </button>
-              </div>
+                  <span className="line-clamp-2 text-gray-600">
+                    {item.title} <span className="text-gray-400">× {item.quantity}</span>
+                  </span>
+                  <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex justify-between border-t border-gray-100 pt-4 text-base">
+              <span className="font-semibold">Total</span>
+              <span className="font-bold">{formatPrice(total)}</span>
             </div>
-          </div>
-        </form>
-      </main>
+            <button type="submit" disabled={loading} className="btn-primary mt-6 w-full">
+              {loading ? 'Processing…' : paymentMethod === 'stripe' ? 'Pay with Stripe' : 'Place order'}
+            </button>
+            <p className="mt-3 text-center text-xs text-gray-400">
+              By placing your order you agree to our{' '}
+              <Link href="/terms" className="underline">
+                Terms
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="underline">
+                Privacy
+              </Link>
+              .
+            </p>
+          </aside>
+        </div>
+      </form>
     </div>
+  )
+}
+
+interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  name: string
+}
+
+function Field({ label, name, className = '', ...rest }: FieldProps) {
+  const id = `field-${name}`
+  return (
+    <div className={className}>
+      <label htmlFor={id} className="mb-1 block text-sm font-medium text-gray-700">
+        {label}
+        {rest.required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
+      <input
+        id={id}
+        name={name}
+        {...rest}
+        className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm shadow-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+      />
+    </div>
+  )
+}
+
+interface PaymentOptionProps {
+  value: PaymentMethod
+  selected: PaymentMethod
+  onChange: (next: PaymentMethod) => void
+  title: string
+  description: string
+}
+
+function PaymentOption({ value, selected, onChange, title, description }: PaymentOptionProps) {
+  const id = `pm-${value}`
+  const isSelected = value === selected
+  return (
+    <label
+      htmlFor={id}
+      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+        isSelected ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-primary/40'
+      }`}
+    >
+      <input
+        id={id}
+        type="radio"
+        name="payment"
+        value={value}
+        checked={isSelected}
+        onChange={() => onChange(value)}
+        className="mt-1 h-4 w-4 accent-primary"
+      />
+      <div>
+        <span className="font-medium text-gray-900">{title}</span>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+    </label>
   )
 }

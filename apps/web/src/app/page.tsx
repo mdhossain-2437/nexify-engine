@@ -1,155 +1,165 @@
 import Link from 'next/link'
 import { JsonLd } from '@/components/json-ld'
+import { ProductCard } from '@/components/product-card'
+import { listProducts } from '@/lib/api'
 import { generateWebsiteSchema } from '@/lib/schema-markup'
 
-export default function HomePage() {
-  return (
-    <div className="min-h-screen">
-      <JsonLd data={generateWebsiteSchema({
-        siteName: 'Nexify Engine',
-        siteDescription: 'Modern multi-tenant CMS and ecommerce platform',
-      })} />
-      {/* Hero Section */}
-      <header className="bg-gradient-to-br from-blue-600 to-indigo-800 text-white">
-        <nav className="container-custom py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Nexify Engine</h1>
-          <div className="flex items-center gap-6">
-            <Link href="/products" className="hover:text-blue-200 transition-colors">
-              Products
-            </Link>
-            <Link href="/blog" className="hover:text-blue-200 transition-colors">
-              Blog
-            </Link>
-            <Link href="/contact" className="hover:text-blue-200 transition-colors">
-              Contact
-            </Link>
-            <Link href="/cart" className="hover:text-blue-200 transition-colors">
-              Cart
-            </Link>
-          </div>
-        </nav>
+export const revalidate = 60
 
-        <div className="container-custom py-20 md:py-32 text-center">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Modern Multi-Tenant
-            <br />
-            CMS & Ecommerce Platform
-          </h2>
-          <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Build and manage multiple online stores from one powerful platform.
-            SEO-friendly, blazing fast, and easy to customize.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/products" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
-              Browse Products
-            </Link>
-            <Link href="/about" className="btn-outline border-white text-white hover:bg-white hover:text-blue-700">
-              Learn More
-            </Link>
+const FEATURES = [
+  {
+    title: 'Multi-tenant by design',
+    description:
+      'Run dozens of stores from one Payload-powered admin. Per-tenant content, theming, and storage limits — out of the box.',
+    icon: '🏢',
+  },
+  {
+    title: 'SEO that just works',
+    description:
+      'Server-rendered metadata, JSON-LD product/breadcrumb/blog schemas, sitemap.xml, and robots.txt with zero config.',
+    icon: '🔍',
+  },
+  {
+    title: 'Blazing fast storefront',
+    description:
+      'Next.js 15 App Router, ISR, edge-cached static pages, and a hydration-safe cart that never blocks the first paint.',
+    icon: '⚡',
+  },
+  {
+    title: 'Block-based content',
+    description:
+      'Hero, product grid, banner, testimonials, FAQ, CTA — compose pages from typed Payload blocks without a developer.',
+    icon: '🧩',
+  },
+  {
+    title: 'Ecommerce essentials',
+    description:
+      'Products, variants, categories, orders, Stripe checkout, COD, payments tracking, invoices — all wired up.',
+    icon: '🛒',
+  },
+  {
+    title: 'Custom themes per tenant',
+    description:
+      'Each tenant ships with their own primary/secondary colors and typography, applied via CSS variables at runtime.',
+    icon: '🎨',
+  },
+] as const
+
+export default async function HomePage() {
+  const featuredResponse = await listProducts({ featured: true, limit: 8 })
+  const featuredProducts = featuredResponse.docs
+
+  return (
+    <>
+      <JsonLd
+        data={generateWebsiteSchema({
+          siteName: 'Nexify Engine',
+          siteDescription: 'Modern multi-tenant CMS and ecommerce platform.',
+        })}
+      />
+
+      {/* Hero */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 opacity-30 [background:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.4),transparent_40%),radial-gradient(circle_at_80%_60%,rgba(255,255,255,0.3),transparent_40%)]"
+        />
+        <div className="container-custom relative py-20 md:py-28 lg:py-36">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wide backdrop-blur">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+              v0.1 — multi-tenant edition
+            </span>
+            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+              The CMS &amp; ecommerce platform that scales{' '}
+              <span className="bg-gradient-to-r from-amber-300 to-pink-300 bg-clip-text text-transparent">
+                from one to many.
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100 md:text-xl">
+              Build, theme and operate dozens of online stores from one powerful platform. SEO-ready,
+              blazing fast, fully typed, and easy to extend.
+            </p>
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link href="/products" className="btn-primary bg-white !text-blue-700 hover:!bg-blue-50">
+                Browse products
+              </Link>
+              <Link
+                href="/about"
+                className="btn-outline border-white text-white hover:bg-white hover:text-blue-700"
+              >
+                Learn more
+              </Link>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
+
+      {/* Featured products */}
+      {featuredProducts.length > 0 && (
+        <section className="section-padding">
+          <div className="container-custom">
+            <div className="mb-8 flex items-end justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">Featured</p>
+                <h2 className="text-3xl font-bold">Top picks this week</h2>
+              </div>
+              <Link href="/products" className="text-sm font-medium text-primary hover:underline">
+                View all →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts.slice(0, 4).map((product, idx) => (
+                <ProductCard key={product.id} product={product} priority={idx < 2} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features */}
       <section className="section-padding bg-gray-50">
         <div className="container-custom">
-          <h3 className="text-3xl font-bold text-center mb-12">Why Nexify Engine?</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard
-              title="Multi-Tenant Architecture"
-              description="Manage multiple stores from a single dashboard. Each tenant gets their own storefront, products, and settings."
-              icon="🏢"
-            />
-            <FeatureCard
-              title="SEO Optimized"
-              description="Built with Next.js for server-side rendering, dynamic meta tags, sitemaps, and schema markup."
-              icon="🔍"
-            />
-            <FeatureCard
-              title="Lightning Fast"
-              description="Static generation, incremental regeneration, and edge caching for sub-100ms page loads."
-              icon="⚡"
-            />
-            <FeatureCard
-              title="Easy Content Management"
-              description="Block-based page builder, rich text editor, and media library for effortless content creation."
-              icon="📝"
-            />
-            <FeatureCard
-              title="Full Commerce Suite"
-              description="Products, variants, categories, orders, payments, coupons — everything you need to sell online."
-              icon="🛒"
-            />
-            <FeatureCard
-              title="Customizable Themes"
-              description="Per-tenant theme configuration with colors, fonts, layouts, and branding options."
-              icon="🎨"
-            />
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <h2 className="text-3xl font-bold">Why Nexify Engine?</h2>
+            <p className="mt-3 text-gray-600">
+              A batteries-included foundation for SaaS commerce — without locking you in.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="text-3xl" aria-hidden>
+                  {feature.icon}
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{feature.description}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="section-padding bg-blue-600 text-white text-center">
-        <div className="container-custom">
-          <h3 className="text-3xl font-bold mb-4">Ready to get started?</h3>
-          <p className="text-xl text-blue-100 mb-8">
-            Launch your multi-tenant ecommerce platform today.
+      <section className="section-padding bg-primary text-white">
+        <div className="container-custom text-center">
+          <h2 className="text-3xl font-bold md:text-4xl">Ready to launch your store?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-blue-100">
+            Spin up a tenant, customize the theme, drop in your products, and ship in an afternoon.
           </p>
-          <Link href="/contact" className="btn-primary bg-white text-blue-700 hover:bg-blue-50">
-            Contact Us
-          </Link>
+          <div className="mt-8 flex justify-center gap-3">
+            <Link href="/contact" className="btn-primary bg-white !text-blue-700 hover:!bg-blue-50">
+              Get in touch
+            </Link>
+            <Link href="/products" className="btn-outline border-white text-white hover:bg-white hover:!text-primary">
+              Explore demo store
+            </Link>
+          </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="text-white font-bold text-lg mb-4">Nexify Engine</h4>
-              <p className="text-sm">
-                Modern multi-tenant CMS and ecommerce platform
-                built with Next.js, Payload CMS, and PostgreSQL.
-              </p>
-            </div>
-            <div>
-              <h5 className="text-white font-semibold mb-3">Platform</h5>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/products" className="hover:text-white transition-colors">Products</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="text-white font-semibold mb-3">Legal</h5>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="text-white font-semibold mb-3">Contact</h5>
-              <ul className="space-y-2 text-sm">
-                <li>support@nexify.com</li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
-            <p>&copy; {new Date().getFullYear()} Nexify Engine. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  )
-}
-
-function FeatureCard({ title, description, icon }: { title: string; description: string; icon: string }) {
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <div className="text-4xl mb-4">{icon}</div>
-      <h4 className="text-xl font-semibold mb-2">{title}</h4>
-      <p className="text-gray-600">{description}</p>
-    </div>
+    </>
   )
 }

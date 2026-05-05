@@ -1,94 +1,99 @@
 import Link from 'next/link'
+import Image from 'next/image'
+import type { Metadata } from 'next'
+import { mediaUrl } from '@nexify/types'
+import { Pagination } from '@/components/pagination'
+import { listBlogPosts } from '@/lib/api'
+import { formatDate } from '@/lib/format'
 
-export const metadata = {
-  title: 'Blog | Nexify Engine',
-  description: 'Read our latest articles and news',
+export const metadata: Metadata = {
+  title: 'Blog',
+  description: 'Insights, updates and stories from the Nexify Engine team.',
 }
 
-async function getBlogPosts() {
-  try {
-    const apiUrl = process.env.PAYLOAD_API_URL || 'http://localhost:3001'
-    const res = await fetch(
-      `${apiUrl}/api/blog-posts?where[status][equals]=published&depth=2&limit=12&sort=-publishedAt`,
-      { next: { revalidate: 30 } }
-    )
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.docs || []
-  } catch {
-    return []
-  }
+interface BlogPageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
-export default async function BlogPage() {
-  const posts = await getBlogPosts()
+const PAGE_SIZE = 9
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
+  const sp = (await searchParams) ?? {}
+  const pageParam = Array.isArray(sp.page) ? sp.page[0] : sp.page
+  const page = Math.max(1, Number(pageParam ?? '1') || 1)
+
+  const response = await listBlogPosts({ page, limit: PAGE_SIZE })
+  const posts = response.docs
 
   return (
-    <div className="min-h-screen">
-      <nav className="bg-white border-b sticky top-0 z-50">
-        <div className="container-custom py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-primary">Nexify Engine</Link>
-          <div className="flex items-center gap-6">
-            <Link href="/products" className="text-gray-600 hover:text-primary">Products</Link>
-            <Link href="/blog" className="font-medium text-primary">Blog</Link>
-            <Link href="/cart" className="text-gray-600 hover:text-primary">Cart</Link>
-          </div>
+    <div className="container-custom section-padding">
+      <header className="mb-10">
+        <h1 className="text-4xl font-bold">Blog</h1>
+        <p className="mt-2 text-gray-500">Stories, updates, and lessons from the team.</p>
+      </header>
+
+      {posts.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-16 text-center">
+          <p className="text-lg font-medium text-gray-700">No posts yet.</p>
+          <p className="mt-2 text-sm text-gray-500">Check back soon — we&apos;re writing.</p>
         </div>
-      </nav>
-
-      <main className="container-custom section-padding">
-        <h1 className="text-3xl font-bold mb-8">Blog</h1>
-
-        {posts.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg mb-4">No blog posts yet.</p>
-            <p className="text-gray-400">Blog posts will appear here once published via the admin panel.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post: Record<string, unknown>) => (
-              <Link
-                key={post.id as string}
-                href={`/blog/${post.slug}`}
-                className="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                <div className="aspect-video bg-gray-100">
-                  {(post.featuredImage as Record<string, unknown>)?.url ? (
-                    <img
-                      src={(post.featuredImage as Record<string, unknown>).url as string}
-                      alt={post.title as string}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2" />
-                      </svg>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post, idx) => {
+              const featured = mediaUrl(post.featuredImage)
+              return (
+                <article
+                  key={post.id}
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white transition-shadow hover:shadow-lg"
+                >
+                  <Link href={`/blog/${post.slug}`} className="block">
+                    <div className="relative aspect-[16/9] w-full bg-gray-50">
+                      {featured ? (
+                        <Image
+                          src={featured}
+                          alt={post.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          priority={idx < 2}
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-gray-300">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-12 w-12">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <h3 className="font-semibold text-lg group-hover:text-primary transition-colors mb-2">
-                    {post.title as string}
-                  </h3>
-                  {post.excerpt && (
-                    <p className="text-gray-600 text-sm line-clamp-2">{post.excerpt as string}</p>
-                  )}
-                  {post.publishedAt && (
-                    <p className="text-gray-400 text-xs mt-3">
-                      {new Date(post.publishedAt as string).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            ))}
+                  </Link>
+                  <div className="flex flex-1 flex-col gap-2 p-5">
+                    <h2 className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-primary">
+                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                    </h2>
+                    {post.excerpt && (
+                      <p className="line-clamp-3 text-sm text-gray-600">{post.excerpt}</p>
+                    )}
+                    {post.publishedAt && (
+                      <p className="mt-auto pt-2 text-xs text-gray-400">
+                        {formatDate(post.publishedAt)}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              )
+            })}
           </div>
-        )}
-      </main>
+
+          <Pagination basePath="/blog" page={page} totalPages={response.totalPages || 1} />
+        </>
+      )}
     </div>
   )
 }
