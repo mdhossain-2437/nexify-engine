@@ -113,6 +113,7 @@ export const stripeCheckoutHandler: PayloadHandler = async (req) => {
     const orderData: Record<string, unknown> = {
       tenant: tenantId,
       invoiceNumber,
+      customerEmail: body.customerEmail,
       items: body.items.map((item) => ({
         product: parseId(item.productId),
         title: item.title,

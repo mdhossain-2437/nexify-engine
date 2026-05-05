@@ -1,5 +1,8 @@
 import { getPayload } from 'payload'
 import config from '../payload.config'
+import type { Product } from '../payload-types'
+
+type SeedProduct = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
 
 async function seed() {
   const payload = await getPayload({ config })
@@ -32,7 +35,7 @@ async function seed() {
     where: { slug: { equals: 'demo-store' } },
   })
 
-  let tenantId: string
+  let tenantId: number
   if (existingTenant.totalDocs === 0) {
     const tenant = await payload.create({
       collection: 'tenants',
@@ -50,10 +53,10 @@ async function seed() {
         },
       },
     })
-    tenantId = tenant.id as string
+    tenantId = tenant.id as number
     console.log('Created demo tenant: Demo Store')
   } else {
-    tenantId = existingTenant.docs[0].id as string
+    tenantId = existingTenant.docs[0].id as number
   }
 
   // Create tenant admin
@@ -83,7 +86,7 @@ async function seed() {
     where: { slug: { equals: 'electronics' } },
   })
 
-  let categoryId: string
+  let categoryId: number
   if (existingCategory.totalDocs === 0) {
     const category = await payload.create({
       collection: 'categories',
@@ -94,7 +97,7 @@ async function seed() {
         tenant: tenantId,
       },
     })
-    categoryId = category.id as string
+    categoryId = category.id as number
 
     await payload.create({
       collection: 'categories',
@@ -108,7 +111,7 @@ async function seed() {
 
     console.log('Created demo categories')
   } else {
-    categoryId = existingCategory.docs[0].id as string
+    categoryId = existingCategory.docs[0].id as number
   }
 
   // Create demo products
@@ -118,7 +121,7 @@ async function seed() {
   })
 
   if (existingProducts.totalDocs === 0) {
-    const products = [
+    const products: SeedProduct[] = [
       {
         title: 'Wireless Headphones Pro',
         slug: 'wireless-headphones-pro',
@@ -222,7 +225,14 @@ async function seed() {
                 children: [
                   {
                     type: 'paragraph',
-                    children: [{ type: 'text', text: 'We are a modern online store committed to providing the best products.' }],
+                    version: 1,
+                    children: [
+                      {
+                        type: 'text',
+                        version: 1,
+                        text: 'We are a modern online store committed to providing the best products.',
+                      },
+                    ],
                   },
                 ],
                 direction: 'ltr',
