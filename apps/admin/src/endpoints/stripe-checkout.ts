@@ -1,36 +1,52 @@
 import type { PayloadHandler } from 'payload'
 
 interface LineItem {
+  /** Numeric Payload product ID. Required to wire the order line back to the
+   *  product collection. */
+  productId: number | string
   title: string
   price: number
   quantity: number
+  variantIndex?: number | null
+}
+
+interface ShippingAddress {
+  fullName: string
+  phone: string
+  addressLine1: string
+  addressLine2?: string
+  city: string
+  state?: string
+  postalCode: string
+  country: string
 }
 
 interface CheckoutBody {
   items: LineItem[]
-  tenantId: string
+  tenantId: string | number
   customerEmail: string
-  shippingAddress: {
-    fullName: string
-    phone: string
-    addressLine1: string
-    addressLine2?: string
-    city: string
-    state?: string
-    postalCode: string
-    country: string
-  }
+  customerId?: string | number | null
+  shippingAddress: ShippingAddress
   successUrl: string
   cancelUrl: string
+  currency?: string
+}
+
+const ALLOWED_CURRENCIES = new Set(['usd', 'eur', 'gbp', 'cad', 'aud', 'inr', 'bdt'])
+
+function parseId(value: unknown): number | string | undefined {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string' && value.trim()) {
+    const num = Number(value)
+    return Number.isFinite(num) ? num : value
+  }
+  return undefined
 }
 
 export const stripeCheckoutHandler: PayloadHandler = async (req) => {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY
   if (!stripeSecretKey) {
-    return Response.json(
-      { error: 'Stripe is not configured' },
-      { status: 503 },
-    )
+    return Response.json({ error: 'Stripe is not configured' }, { status: 503 })
   }
 
   if (req.method !== 'POST') {
@@ -38,12 +54,45 @@ export const stripeCheckoutHandler: PayloadHandler = async (req) => {
   }
 
   try {
-    const body = (await req.json?.()) as CheckoutBody | undefined
-    if (!body || !body.items?.length || !body.tenantId || !body.customerEmail) {
+    const body = (await req.json?.()) as Partial<CheckoutBody> | undefined
+    if (
+      !body ||
+      !Array.isArray(body.items) ||
+      body.items.length === 0 ||
+      !body.tenantId ||
+      !body.customerEmail
+    ) {
       return Response.json(
-        { error: 'Missing required fields: items, tenantId, customerEmail' },
+        {
+          error:
+            'Missing required fields: items[].productId, items[].title, items[].price, items[].quantity, tenantId, customerEmail',
+        },
         { status: 400 },
       )
+    }
+
+    for (const item of body.items) {
+      if (
+        !item ||
+        item.productId == null ||
+        typeof item.title !== 'string' ||
+        typeof item.price !== 'number' ||
+        typeof item.quantity !== 'number' ||
+        item.quantity <= 0
+      ) {
+        return Response.json(
+          {
+            error:
+              'Each cart line must include productId, title, price (number) and quantity (positive integer).',
+          },
+          { status: 400 },
+        )
+      }
+    }
+
+    const currency = (body.currency ?? 'usd').toLowerCase()
+    if (!ALLOWED_CURRENCIES.has(currency)) {
+      return Response.json({ error: `Unsupported currency: ${currency}` }, { status: 400 })
     }
 
     const { default: Stripe } = await import('stripe')
@@ -58,28 +107,32 @@ export const stripeCheckoutHandler: PayloadHandler = async (req) => {
     const random = Math.random().toString(36).substring(2, 6).toUpperCase()
     const invoiceNumber = `INV-${timestamp}-${random}`
 
-    const tenantIdNum = Number(body.tenantId)
-    const customerIdNum = req.user?.id ? Number(req.user.id) : tenantIdNum
+    const tenantId = parseId(body.tenantId)
+    const customerId = parseId(req.user?.id ?? body.customerId ?? null)
+
+    const orderData: Record<string, unknown> = {
+      tenant: tenantId,
+      invoiceNumber,
+      items: body.items.map((item) => ({
+        product: parseId(item.productId),
+        title: item.title,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalPrice: item.price * item.quantity,
+      })),
+      totalAmount,
+      paymentMethod: 'stripe',
+      paymentStatus: 'pending',
+      orderStatus: 'pending',
+      shippingAddress: body.shippingAddress,
+    }
+    if (customerId !== undefined) {
+      orderData.customer = customerId
+    }
 
     const order = await req.payload.create({
       collection: 'orders',
-      data: {
-        tenant: tenantIdNum,
-        customer: customerIdNum,
-        invoiceNumber,
-        items: body.items.map((item) => ({
-          product: tenantIdNum,
-          title: item.title,
-          quantity: item.quantity,
-          unitPrice: item.price,
-          totalPrice: item.price * item.quantity,
-        })),
-        totalAmount,
-        paymentMethod: 'stripe',
-        paymentStatus: 'pending',
-        orderStatus: 'pending',
-        shippingAddress: body.shippingAddress,
-      },
+      data: orderData as never,
     })
 
     const session = await stripe.checkout.sessions.create({
@@ -88,7 +141,7 @@ export const stripeCheckoutHandler: PayloadHandler = async (req) => {
       customer_email: body.customerEmail,
       line_items: body.items.map((item) => ({
         price_data: {
-          currency: 'usd',
+          currency,
           product_data: { name: item.title },
           unit_amount: Math.round(item.price * 100),
         },
@@ -96,25 +149,24 @@ export const stripeCheckoutHandler: PayloadHandler = async (req) => {
       })),
       metadata: {
         orderId: String(order.id),
-        tenantId: body.tenantId,
+        tenantId: String(tenantId ?? ''),
         invoiceNumber,
       },
       success_url: `${body.successUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: body.cancelUrl,
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (req.payload as any).create({
+    await req.payload.create({
       collection: 'payments',
       data: {
-        tenant: tenantIdNum,
-        order: Number(order.id),
+        tenant: tenantId,
+        order: order.id,
         provider: 'stripe',
         stripeSessionId: session.id,
         amount: totalAmount,
-        currency: 'usd',
+        currency,
         status: 'pending',
-      },
+      } as never,
     })
 
     return Response.json({ url: session.url, sessionId: session.id })

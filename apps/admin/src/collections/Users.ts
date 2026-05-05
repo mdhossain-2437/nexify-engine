@@ -1,5 +1,9 @@
 import type { CollectionConfig } from 'payload'
-import { superAdminAccess, selfOrAdminAccess, superAdminFieldAccess } from '../access/roles'
+import {
+  superAdminAccess,
+  selfOrAdminAccess,
+  superAdminFieldAccess,
+} from '../access/roles'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -33,7 +37,7 @@ export const Users: CollectionConfig = {
         { label: 'Customer', value: 'customer' },
       ],
       access: {
-        update: superAdminAccess,
+        update: superAdminFieldAccess,
       },
     },
     {

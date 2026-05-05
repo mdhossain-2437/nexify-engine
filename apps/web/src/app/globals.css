@@ -3,33 +3,67 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #2563eb;
-  --color-secondary: #64748b;
+  /* RGB triples power Tailwind's `<alpha-value>` resolution (e.g. bg-primary/10). */
+  --color-primary-rgb: 37 99 235;
+  --color-secondary-rgb: 100 116 139;
+  --color-primary: rgb(var(--color-primary-rgb));
+  --color-secondary: rgb(var(--color-secondary-rgb));
   --font-family: 'Inter', system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-family);
 }
 
+@layer base {
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-white;
+  }
+
+  ::selection {
+    background: rgb(var(--color-primary-rgb) / 0.25);
+  }
+}
+
 @layer components {
   .btn-primary {
-    @apply bg-primary text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity;
+    @apply inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 font-semibold text-white shadow-sm transition-all hover:opacity-90 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity;
+    @apply inline-flex items-center justify-center rounded-lg bg-secondary px-6 py-3 font-semibold text-white shadow-sm transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .btn-outline {
-    @apply border-2 border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary hover:text-white transition-colors;
+    @apply inline-flex items-center justify-center rounded-lg border-2 border-primary px-6 py-3 font-semibold text-primary transition-colors hover:bg-primary hover:text-white;
   }
 
   .container-custom {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   .section-padding {
     @apply py-12 md:py-16 lg:py-20;
+  }
+
+  .prose-storefront {
+    @apply prose prose-gray max-w-none prose-headings:font-bold prose-a:text-primary;
+  }
+}
+
+/* Reduced motion: respect user preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

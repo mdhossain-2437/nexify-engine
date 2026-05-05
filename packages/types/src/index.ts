@@ -6,3 +6,4 @@ export * from './page';
 export * from './blog';
 export * from './payment';
 export * from './settings';
+export * from './storefront';

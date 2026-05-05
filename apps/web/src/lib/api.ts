@@ -1,166 +1,174 @@
+import type {
+  PayloadListResponse,
+  StorefrontBlogPost,
+  StorefrontCategory,
+  StorefrontProduct,
+} from '@nexify/types'
+
 const API_URL = process.env.PAYLOAD_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
-interface PayloadResponse<T> {
-  docs: T[]
-  totalDocs: number
-  totalPages: number
-  page: number
-  limit: number
-  hasNextPage: boolean
-  hasPrevPage: boolean
+interface FetchOptions extends Omit<RequestInit, 'body'> {
+  params?: Record<string, string | number | boolean | undefined>
+  /** Override the default ISR revalidation (seconds). */
+  revalidate?: number
 }
 
-async function fetchAPI<T>(
-  endpoint: string,
-  options?: RequestInit & { params?: Record<string, string> }
-): Promise<T> {
-  const { params, ...fetchOptions } = options || {}
-  const searchParams = new URLSearchParams(params)
-  const queryString = searchParams.toString()
-  const url = `${API_URL}/api${endpoint}${queryString ? `?${queryString}` : ''}`
+async function fetchAPI<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
+  const { params, revalidate = 30, ...fetchOptions } = options
+  const search = new URLSearchParams()
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value === undefined || value === null || value === '') continue
+      search.set(key, String(value))
+    }
+  }
+  const qs = search.toString()
+  const url = `${API_URL}/api${endpoint}${qs ? `?${qs}` : ''}`
 
   const res = await fetch(url, {
     ...fetchOptions,
+    next: { revalidate, ...(fetchOptions.next ?? {}) },
     headers: {
       'Content-Type': 'application/json',
-      ...fetchOptions?.headers,
+      ...fetchOptions.headers,
     },
   })
 
   if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`)
+    throw new Error(`API error ${res.status} ${res.statusText} for ${endpoint}`)
   }
-
-  return res.json()
+  return res.json() as Promise<T>
 }
 
-export async function getTenant(subdomain: string) {
-  const data = await fetchAPI<PayloadResponse<Record<string, unknown>>>('/tenants', {
-    params: {
-      'where[subdomain][equals]': subdomain,
-      depth: '1',
-      limit: '1',
-    },
-    next: { revalidate: 60 },
-  })
-  return data.docs[0] || null
+/** Swallow network/auth failures and return `null` so pages can render safely. */
+async function safe<T>(fn: () => Promise<T>): Promise<T | null> {
+  try {
+    return await fn()
+  } catch {
+    return null
+  }
 }
 
-export async function getTenantByDomain(domain: string) {
-  const data = await fetchAPI<PayloadResponse<Record<string, unknown>>>('/tenants', {
-    params: {
-      'where[customDomain][equals]': domain,
-      depth: '1',
-      limit: '1',
-    },
-    next: { revalidate: 60 },
-  })
-  return data.docs[0] || null
-}
+const emptyList = <T>(): PayloadListResponse<T> => ({
+  docs: [],
+  totalDocs: 0,
+  totalPages: 0,
+  page: 1,
+  limit: 0,
+  hasNextPage: false,
+  hasPrevPage: false,
+})
 
-export async function getProducts(tenantId: string, options?: {
+export interface ListProductsOptions {
   category?: string
+  query?: string
   featured?: boolean
   limit?: number
   page?: number
   sort?: string
-}) {
-  const params: Record<string, string> = {
-    'where[tenant][equals]': tenantId,
+}
+
+export async function listProducts(
+  options: ListProductsOptions = {},
+): Promise<PayloadListResponse<StorefrontProduct>> {
+  const params: Record<string, string | number | boolean | undefined> = {
     'where[status][equals]': 'published',
-    depth: '2',
-    limit: String(options?.limit || 12),
-    page: String(options?.page || 1),
+    depth: 2,
+    limit: options.limit ?? 12,
+    page: options.page ?? 1,
+    sort: options.sort ?? '-createdAt',
+  }
+  if (options.category) {
+    params['where[category.slug][equals]'] = options.category
+  }
+  if (options.query) {
+    params['where[title][like]'] = options.query
+  }
+  if (options.featured) {
+    params['where[featured][equals]'] = true
   }
 
-  if (options?.category) {
-    params['where[category][equals]'] = options.category
-  }
-  if (options?.featured) {
-    params['where[featured][equals]'] = 'true'
-  }
-  if (options?.sort) {
-    params.sort = options.sort
-  }
-
-  return fetchAPI<PayloadResponse<Record<string, unknown>>>('/products', {
-    params,
-    next: { revalidate: 30 },
-  })
+  const data = await safe(() =>
+    fetchAPI<PayloadListResponse<StorefrontProduct>>('/products', { params }),
+  )
+  return data ?? emptyList<StorefrontProduct>()
 }
 
-export async function getProduct(tenantId: string, slug: string) {
-  const data = await fetchAPI<PayloadResponse<Record<string, unknown>>>('/products', {
-    params: {
-      'where[tenant][equals]': tenantId,
-      'where[slug][equals]': slug,
-      depth: '2',
-      limit: '1',
-    },
-    next: { revalidate: 30 },
-  })
-  return data.docs[0] || null
+export async function getProduct(slug: string): Promise<StorefrontProduct | null> {
+  const data = await safe(() =>
+    fetchAPI<PayloadListResponse<StorefrontProduct>>('/products', {
+      params: {
+        'where[slug][equals]': slug,
+        'where[status][equals]': 'published',
+        depth: 2,
+        limit: 1,
+      },
+    }),
+  )
+  return data?.docs[0] ?? null
 }
 
-export async function getCategories(tenantId: string) {
-  return fetchAPI<PayloadResponse<Record<string, unknown>>>('/categories', {
-    params: {
-      'where[tenant][equals]': tenantId,
-      depth: '1',
-      limit: '100',
-    },
-    next: { revalidate: 60 },
-  })
+export async function listCategories(): Promise<StorefrontCategory[]> {
+  const data = await safe(() =>
+    fetchAPI<PayloadListResponse<StorefrontCategory>>('/categories', {
+      params: { depth: 1, limit: 100 },
+      revalidate: 300,
+    }),
+  )
+  return data?.docs ?? []
 }
 
-export async function getPage(tenantId: string, slug: string) {
-  const data = await fetchAPI<PayloadResponse<Record<string, unknown>>>('/pages', {
-    params: {
-      'where[tenant][equals]': tenantId,
-      'where[slug][equals]': slug,
-      'where[status][equals]': 'published',
-      depth: '2',
-      limit: '1',
-    },
-    next: { revalidate: 60 },
-  })
-  return data.docs[0] || null
-}
-
-export async function getBlogPosts(tenantId: string, options?: {
+export interface ListBlogOptions {
   limit?: number
   page?: number
   tag?: string
-}) {
-  const params: Record<string, string> = {
-    'where[tenant][equals]': tenantId,
+}
+
+export async function listBlogPosts(
+  options: ListBlogOptions = {},
+): Promise<PayloadListResponse<StorefrontBlogPost>> {
+  const params: Record<string, string | number | boolean | undefined> = {
     'where[status][equals]': 'published',
-    depth: '2',
-    limit: String(options?.limit || 10),
-    page: String(options?.page || 1),
+    depth: 2,
+    limit: options.limit ?? 12,
+    page: options.page ?? 1,
     sort: '-publishedAt',
   }
-
-  if (options?.tag) {
+  if (options.tag) {
     params['where[tags.tag][equals]'] = options.tag
   }
 
-  return fetchAPI<PayloadResponse<Record<string, unknown>>>('/blog-posts', {
-    params,
-    next: { revalidate: 30 },
-  })
+  const data = await safe(() =>
+    fetchAPI<PayloadListResponse<StorefrontBlogPost>>('/blog-posts', { params }),
+  )
+  return data ?? emptyList<StorefrontBlogPost>()
 }
 
-export async function getBlogPost(tenantId: string, slug: string) {
-  const data = await fetchAPI<PayloadResponse<Record<string, unknown>>>('/blog-posts', {
-    params: {
-      'where[tenant][equals]': tenantId,
-      'where[slug][equals]': slug,
-      'where[status][equals]': 'published',
-      depth: '2',
-      limit: '1',
-    },
-    next: { revalidate: 30 },
-  })
-  return data.docs[0] || null
+export async function getBlogPost(slug: string): Promise<StorefrontBlogPost | null> {
+  const data = await safe(() =>
+    fetchAPI<PayloadListResponse<StorefrontBlogPost>>('/blog-posts', {
+      params: {
+        'where[slug][equals]': slug,
+        'where[status][equals]': 'published',
+        depth: 2,
+        limit: 1,
+      },
+    }),
+  )
+  return data?.docs[0] ?? null
 }
+
+export async function getPage(slug: string) {
+  return safe(() =>
+    fetchAPI<PayloadListResponse<Record<string, unknown>>>('/pages', {
+      params: {
+        'where[slug][equals]': slug,
+        'where[status][equals]': 'published',
+        depth: 2,
+        limit: 1,
+      },
+    }).then((data) => data.docs[0] ?? null),
+  )
+}
+
+export { API_URL }

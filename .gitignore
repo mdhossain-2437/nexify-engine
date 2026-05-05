@@ -31,3 +31,6 @@ npm-debug.log*
 
 # misc
 *.tsbuildinfo
+
+# Next.js generated
+next-env.d.ts

@@ -110,13 +110,17 @@ pnpm db:seed
 - Theme configuration
 
 ### Public Storefront
-- Homepage with dynamic content blocks
-- Product listing with category filtering
-- Product detail pages with variant selection
-- Shopping cart (Zustand + localStorage)
-- Checkout flow
-- Blog pages
-- Contact page
+- Shared `<SiteHeader />` and `<SiteFooter />` rendered from the root layout, with a hydration-safe cart badge that surfaces total item count on every page
+- Homepage with dynamic content blocks and live featured products
+- Product listing with `?q=` search, `?category=` filter, sortable, paginated
+- Product detail pages with working variant selection and price modifiers, image gallery, JSON-LD `Product` + `BreadcrumbList`
+- Blog index + `/blog/[slug]` detail page with rich-text rendering and JSON-LD `BlogPosting`
+- Generic `/[slug]` Payload page renderer mapping content blocks (hero, textContent, imageText, productGrid, banner, testimonials, cta, faq) to React
+- Shopping cart with **tenant-scoped** localStorage (no cross-tenant cart bleed)
+- Checkout flow (Stripe Checkout + Cash on Delivery) with order confirmation reading `?session_id=`
+- About / Privacy / Terms / Contact pages
+- Branded `not-found.tsx` and `error.tsx`, plus `loading.tsx` skeletons on heavy routes
+- `next/image` everywhere, with `remotePatterns` derived from `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_IMAGE_HOSTS`
 
 ### Payments (Stripe)
 - Stripe Checkout integration for card payments
@@ -162,6 +166,20 @@ pnpm db:seed
 | `PAYLOAD_API_URL` | Payload CMS API URL (server-side) |
 | `NEXT_PUBLIC_API_URL` | Payload CMS API URL (client-side) |
 | `NEXT_PUBLIC_APP_URL` | Public storefront URL |
+
+## Quality
+
+- `pnpm lint` — ESLint via `next/core-web-vitals`
+- `pnpm typecheck` — strict TypeScript across all packages
+- `pnpm test` — vitest unit tests (cart store coverage)
+- `pnpm format` / `pnpm format:check` — Prettier
+- A ready-to-go GitHub Actions workflow lives at `ci-workflow.yml.example` — drop it into `.github/workflows/ci.yml` to run install / format / lint / typecheck / test / build on every PR
+
+## Security notes
+
+- **Stripe checkout** writes the real Payload product id to each order line; it no longer mistakenly substitutes `tenantId`. `customer` is only set when there is an authenticated user.
+- **Stripe webhook** refuses to process events without a signing secret when `NODE_ENV === 'production'`.
+- **Cart storage** is keyed by hostname (`nexify-cart:<host>`) so multi-tenant browsers cannot share carts.
 
 ## License
 
