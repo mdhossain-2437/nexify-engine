@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { tenantIsolatedAccess } from '../access/roles'
+import { tenantIsolatedReadAccess, tenantCreateAccess, tenantIsolatedWriteAccess } from '../access/roles'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -9,10 +9,10 @@ export const Pages: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: tenantIsolatedAccess,
-    create: tenantIsolatedAccess,
-    update: tenantIsolatedAccess,
-    delete: tenantIsolatedAccess,
+    read: tenantIsolatedReadAccess,
+    create: tenantCreateAccess,
+    update: tenantIsolatedWriteAccess,
+    delete: tenantIsolatedWriteAccess,
   },
   fields: [
     {

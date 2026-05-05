@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { superAdminAccess, authenticatedAccess } from '../access/roles'
+import { superAdminAccess, selfOrAdminAccess, superAdminFieldAccess } from '../access/roles'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -10,9 +10,9 @@ export const Users: CollectionConfig = {
     group: 'Platform',
   },
   access: {
-    read: authenticatedAccess,
+    read: selfOrAdminAccess,
     create: superAdminAccess,
-    update: authenticatedAccess,
+    update: selfOrAdminAccess,
     delete: superAdminAccess,
   },
   fields: [
@@ -40,6 +40,9 @@ export const Users: CollectionConfig = {
       name: 'tenant',
       type: 'relationship',
       relationTo: 'tenants',
+      access: {
+        update: superAdminFieldAccess,
+      },
       admin: {
         description: 'The tenant this user belongs to (null for super admins)',
         condition: (data) => data?.role !== 'super_admin',
@@ -60,6 +63,9 @@ export const Users: CollectionConfig = {
         { label: 'Inactive', value: 'inactive' },
         { label: 'Banned', value: 'banned' },
       ],
+      access: {
+        update: superAdminFieldAccess,
+      },
     },
     {
       name: 'phone',

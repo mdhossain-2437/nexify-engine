@@ -32,8 +32,8 @@ export function TenantProvider({
     <TenantContext.Provider value={tenant}>
       <style>{`
         :root {
-          --color-primary: ${tenant.themeConfig?.primaryColor || '#2563eb'};
-          --color-secondary: ${tenant.themeConfig?.secondaryColor || '#64748b'};
+          --color-primary: ${(tenant.themeConfig?.primaryColor || '#2563eb').replace(/[^#a-zA-Z0-9(),%.\s]/g, '')};
+          --color-secondary: ${(tenant.themeConfig?.secondaryColor || '#64748b').replace(/[^#a-zA-Z0-9(),%.\s]/g, '')};
         }
       `}</style>
       {children}
