@@ -6,6 +6,7 @@ import type { StorefrontProduct } from '@nexify/types'
 import { mediaUrl } from '@nexify/types'
 import { useCartStore } from '@/lib/cart-store'
 import { formatPrice } from '@/lib/format'
+import { WishlistButton } from '@/components/wishlist-button'
 
 interface ProductDetailClientProps {
   product: StorefrontProduct
@@ -206,20 +207,23 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={!inStock}
-          className={`mt-6 w-full rounded-xl py-4 text-base font-semibold transition-all ${
-            !inStock
-              ? 'cursor-not-allowed bg-gray-200 text-gray-500'
-              : added
-                ? 'bg-emerald-600 text-white'
-                : 'bg-primary text-white hover:opacity-90'
-          }`}
-        >
-          {!inStock ? 'Out of stock' : added ? 'Added to cart!' : 'Add to cart'}
-        </button>
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={!inStock}
+            className={`flex-1 rounded-xl py-4 text-base font-semibold transition-all ${
+              !inStock
+                ? 'cursor-not-allowed bg-gray-200 text-gray-500'
+                : added
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-primary text-white hover:opacity-90'
+            }`}
+          >
+            {!inStock ? 'Out of stock' : added ? 'Added to cart!' : 'Add to cart'}
+          </button>
+          <WishlistButton productId={product.id} className="shrink-0" />
+        </div>
 
         {product.tags && product.tags.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">

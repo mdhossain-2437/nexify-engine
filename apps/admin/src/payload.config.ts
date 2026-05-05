@@ -13,6 +13,7 @@ import { Pages } from './collections/Pages'
 import { BlogPosts } from './collections/BlogPosts'
 import { Media } from './collections/Media'
 import { Payments } from './collections/Payments'
+import { Wishlists } from './collections/Wishlists'
 import { TenantSettings } from './globals/TenantSettings'
 import { stripeCheckoutHandler } from './endpoints/stripe-checkout'
 import { stripeWebhookHandler } from './endpoints/stripe-webhook'
@@ -39,6 +40,7 @@ export default buildConfig({
     BlogPosts,
     Media,
     Payments,
+    Wishlists,
   ],
 
   globals: [TenantSettings],
@@ -71,17 +73,12 @@ export default buildConfig({
 
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI || 'postgresql://postgres:postgres@localhost:5432/nexify',
+      connectionString:
+        process.env.DATABASE_URI || 'postgresql://postgres:postgres@localhost:5432/nexify',
     },
   }),
 
-  cors: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-  ],
+  cors: ['http://localhost:3000', 'http://localhost:3001'],
 
-  csrf: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-  ],
+  csrf: ['http://localhost:3000', 'http://localhost:3001'],
 })

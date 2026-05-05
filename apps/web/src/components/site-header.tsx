@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { CartBadge } from './cart-badge'
 import { SearchBar } from './search-bar'
+import { UserMenu } from './user-menu'
 
 function SearchBarFallback({ className }: { className?: string }) {
   return <div className={`h-10 w-full animate-pulse rounded-full bg-gray-100 ${className ?? ''}`} />
@@ -61,6 +62,7 @@ export function SiteHeader() {
             </Suspense>
           </div>
           <CartBadge />
+          <UserMenu />
           <button
             type="button"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -70,9 +72,19 @@ export function SiteHeader() {
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-5 w-5">
               {open ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6l12 12M6 18L18 6" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 6l12 12M6 18L18 6"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M4 12h16M4 17h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 7h16M4 12h16M4 17h16"
+                />
               )}
             </svg>
           </button>
