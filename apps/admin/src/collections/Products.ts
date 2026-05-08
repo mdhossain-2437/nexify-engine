@@ -1,5 +1,10 @@
 import type { CollectionConfig } from 'payload'
-import { tenantIsolatedReadAccess, tenantCreateAccess, tenantIsolatedWriteAccess } from '../access/roles'
+import {
+  tenantIsolatedReadAccess,
+  tenantCreateAccess,
+  tenantIsolatedWriteAccess,
+} from '../access/roles'
+import { syncProductToMeilisearch, removeProductFromMeilisearch } from '../services/meilisearch'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -13,6 +18,20 @@ export const Products: CollectionConfig = {
     create: tenantCreateAccess,
     update: tenantIsolatedWriteAccess,
     delete: tenantIsolatedWriteAccess,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, operation }) => {
+        if (operation === 'create' || operation === 'update') {
+          void syncProductToMeilisearch(doc as Record<string, unknown>)
+        }
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        void removeProductFromMeilisearch((doc as Record<string, unknown>).id as string | number)
+      },
+    ],
   },
   fields: [
     {

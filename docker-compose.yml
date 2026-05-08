@@ -23,10 +23,28 @@ services:
     restart: unless-stopped
     ports:
       - '6379:6379'
+    volumes:
+      - redisdata:/data
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
+      retries: 5
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    restart: unless-stopped
+    ports:
+      - '7700:7700'
+    environment:
+      MEILI_MASTER_KEY: ${MEILISEARCH_API_KEY:-nexify-search-dev-key}
+      MEILI_NO_ANALYTICS: 'true'
+    volumes:
+      - meilidata:/meili_data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:7700/health']
+      interval: 10s
+      timeout: 5s
       retries: 5
 
   admin:
@@ -40,9 +58,16 @@ services:
       DATABASE_URI: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-nexify}
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-replace-this-secret-in-production-min-32chars}
       NEXT_PUBLIC_SERVER_URL: http://localhost:3001
+      REDIS_URL: redis://redis:6379
+      MEILISEARCH_URL: http://meilisearch:7700
+      MEILISEARCH_API_KEY: ${MEILISEARCH_API_KEY:-nexify-search-dev-key}
       NODE_ENV: development
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
         condition: service_healthy
 
   web:
@@ -63,3 +88,5 @@ services:
 
 volumes:
   pgdata:
+  redisdata:
+  meilidata:
