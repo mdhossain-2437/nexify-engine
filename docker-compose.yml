@@ -5,9 +5,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: nexify
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-nexify}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
     ports:
       - '5432:5432'
     volumes:
@@ -37,8 +37,8 @@ services:
     ports:
       - '3001:3001'
     environment:
-      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/nexify
-      PAYLOAD_SECRET: nexify-dev-secret-key-change-in-production-32chars
+      DATABASE_URI: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-nexify}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-replace-this-secret-in-production-min-32chars}
       NEXT_PUBLIC_SERVER_URL: http://localhost:3001
       NODE_ENV: development
     depends_on:
