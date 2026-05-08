@@ -36,7 +36,12 @@ interface AnalyticsData {
   }>
 }
 
-function StatCard({ label, value, subtext, color }: {
+function StatCard({
+  label,
+  value,
+  subtext,
+  color,
+}: {
   label: string
   value: string | number
   subtext?: string
@@ -65,7 +70,9 @@ function StatusBadge({ status }: { status: string }) {
   }
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}`}>
+    <span
+      className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}`}
+    >
       {status}
     </span>
   )
@@ -117,7 +124,14 @@ export default function AnalyticsDashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 mb-4">{error}</p>
-          <button onClick={() => { setLoading(true); setError(null); fetchAnalytics() }} className="btn-primary">
+          <button
+            onClick={() => {
+              setLoading(true)
+              setError(null)
+              fetchAnalytics()
+            }}
+            className="btn-primary"
+          >
             Retry
           </button>
         </div>
@@ -137,18 +151,28 @@ export default function AnalyticsDashboard() {
       <nav className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-2xl font-bold text-primary">Nexify Engine</Link>
+            <Link href="/" className="text-2xl font-bold text-primary">
+              Nexify Engine
+            </Link>
             <span className="text-gray-300">|</span>
             <h1 className="text-lg font-semibold text-gray-700">Analytics Dashboard</h1>
           </div>
-          <a
-            href={`${API_URL}/admin`}
-            className="text-sm text-gray-600 hover:text-primary"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Admin Panel
-          </a>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin/billing"
+              className="text-sm text-gray-600 hover:text-primary"
+            >
+              Billing
+            </Link>
+            <a
+              href={`${API_URL}/admin`}
+              className="text-sm text-gray-600 hover:text-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Admin Panel
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -177,6 +201,50 @@ export default function AnalyticsDashboard() {
             value={overview.totalCustomers}
             subtext={`Avg order: $${overview.averageOrderValue.toFixed(2)}`}
             color="border-l-orange-500"
+          />
+        </div>
+
+        {/* Conversion & Growth Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatCard
+            label="Conversion Rate"
+            value={
+              overview.totalCustomers > 0
+                ? `${((overview.paidOrders / overview.totalCustomers) * 100).toFixed(1)}%`
+                : '0%'
+            }
+            subtext="Paid orders / customers"
+            color="border-l-teal-500"
+          />
+          <StatCard
+            label="Cancellation Rate"
+            value={
+              overview.totalOrders > 0
+                ? `${((overview.cancelledOrders / overview.totalOrders) * 100).toFixed(1)}%`
+                : '0%'
+            }
+            subtext={`${overview.cancelledOrders} cancelled`}
+            color="border-l-red-500"
+          />
+          <StatCard
+            label="Fulfillment Rate"
+            value={
+              overview.totalOrders > 0
+                ? `${(((overview.totalOrders - overview.pendingOrders - overview.cancelledOrders) / overview.totalOrders) * 100).toFixed(1)}%`
+                : '0%'
+            }
+            subtext="Orders processed"
+            color="border-l-indigo-500"
+          />
+          <StatCard
+            label="Revenue/Customer"
+            value={
+              overview.totalCustomers > 0
+                ? `$${(overview.totalRevenue / overview.totalCustomers).toFixed(2)}`
+                : '$0'
+            }
+            subtext="Lifetime value"
+            color="border-l-yellow-500"
           />
         </div>
 
@@ -242,8 +310,12 @@ export default function AnalyticsDashboard() {
                       <tr key={order.id} className="border-b last:border-0">
                         <td className="py-2 font-mono text-xs">{order.invoiceNumber}</td>
                         <td className="py-2">${order.totalAmount?.toFixed(2)}</td>
-                        <td className="py-2"><StatusBadge status={order.orderStatus} /></td>
-                        <td className="py-2"><StatusBadge status={order.paymentStatus} /></td>
+                        <td className="py-2">
+                          <StatusBadge status={order.orderStatus} />
+                        </td>
+                        <td className="py-2">
+                          <StatusBadge status={order.paymentStatus} />
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -260,7 +332,10 @@ export default function AnalyticsDashboard() {
             ) : (
               <div className="space-y-3">
                 {topProducts.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div>
                       <p className="font-medium">{product.title}</p>
                       <p className="text-sm text-gray-500">Stock: {product.stock}</p>

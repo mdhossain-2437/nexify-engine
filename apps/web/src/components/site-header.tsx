@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { CartBadge } from './cart-badge'
 import { SearchBar } from './search-bar'
+import { InstantSearch } from './instant-search'
 import { UserMenu } from './user-menu'
 
 function SearchBarFallback({ className }: { className?: string }) {
@@ -57,9 +58,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <div className="hidden lg:block lg:w-64">
-            <Suspense fallback={<SearchBarFallback />}>
-              <SearchBar />
-            </Suspense>
+            <InstantSearch />
           </div>
           <CartBadge />
           <UserMenu />

@@ -24,10 +24,7 @@ export const stripeWebhookHandler: PayloadHandler = async (req) => {
     req.payload.logger.error(
       'Stripe webhook is configured without STRIPE_WEBHOOK_SECRET in production. Refusing to process events.',
     )
-    return Response.json(
-      { error: 'Webhook signing secret not configured.' },
-      { status: 500 },
-    )
+    return Response.json({ error: 'Webhook signing secret not configured.' }, { status: 500 })
   }
 
   try {
@@ -126,6 +123,60 @@ export const stripeWebhookHandler: PayloadHandler = async (req) => {
               rawResponse: sessionObject,
             },
           })
+        }
+        break
+      }
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        const subscription = sessionObject as Record<string, unknown>
+        const subMetadata = subscription.metadata as Record<string, string> | undefined
+        const subTenantId = subMetadata?.tenantId
+
+        if (subTenantId) {
+          const subStatus = subscription.status as string
+          const statusMap: Record<string, string> = {
+            active: 'active',
+            past_due: 'past_due',
+            canceled: 'cancelled',
+            trialing: 'trialing',
+            unpaid: 'past_due',
+          }
+
+          await req.payload.update({
+            collection: 'tenants',
+            id: subTenantId,
+            data: {
+              stripeSubscriptionId: subscription.id as string,
+              subscriptionStatus: (statusMap[subStatus] || 'none'),
+            } as never,
+          })
+
+          req.payload.logger.info(
+            `Subscription ${subStatus} for tenant ${subTenantId}`,
+          )
+        }
+        break
+      }
+
+      case 'customer.subscription.deleted': {
+        const deletedSub = sessionObject as Record<string, unknown>
+        const deletedMeta = deletedSub.metadata as Record<string, string> | undefined
+        const deletedTenantId = deletedMeta?.tenantId
+
+        if (deletedTenantId) {
+          await req.payload.update({
+            collection: 'tenants',
+            id: deletedTenantId,
+            data: {
+              subscriptionStatus: 'cancelled',
+              plan: 'free',
+            } as never,
+          })
+
+          req.payload.logger.info(
+            `Subscription cancelled for tenant ${deletedTenantId}`,
+          )
         }
         break
       }

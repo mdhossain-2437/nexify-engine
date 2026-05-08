@@ -11,14 +11,25 @@
  * the Sentry Next.js guide and call `initErrorTracking()` in each.
  */
 
-let sentryModule: typeof import('@sentry/nextjs') | null = null
-
-try {
-  // Dynamic import — only resolves if @sentry/nextjs is installed
-  sentryModule = await import('@sentry/nextjs').catch(() => null)
-} catch {
-  sentryModule = null
+interface SentryLike {
+  captureException(error: unknown, context?: { extra?: Record<string, unknown> }): void
+  captureMessage(message: string, level?: string): void
+  setUser(user: { id: string; email?: string } | null): void
 }
+
+let sentryModule: SentryLike | null = null
+
+async function loadSentry(): Promise<void> {
+  try {
+    // @ts-expect-error — @sentry/nextjs is an optional peer dependency
+    const mod = await import('@sentry/nextjs')
+    sentryModule = mod as unknown as SentryLike
+  } catch {
+    sentryModule = null
+  }
+}
+
+void loadSentry()
 
 export function captureException(error: unknown, context?: Record<string, unknown>) {
   if (sentryModule) {

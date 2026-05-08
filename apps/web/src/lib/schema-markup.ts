@@ -20,18 +20,14 @@ export function generateProductSchema(product: ProductSchemaInput) {
     url: `${APP_URL}/products/${product.slug}`,
     description: product.description || product.title,
     sku: product.sku || product.slug,
-    image: product.images
-      ?.map((img) => img.image?.url)
-      .filter(Boolean) || [],
+    image: product.images?.map((img) => img.image?.url).filter(Boolean) || [],
     category: product.category?.name,
     offers: {
       '@type': 'Offer',
       priceCurrency: 'USD',
       price: product.salePrice || product.price,
       availability:
-        (product.stock ?? 0) > 0
-          ? 'https://schema.org/InStock'
-          : 'https://schema.org/OutOfStock',
+        (product.stock ?? 0) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: `${APP_URL}/products/${product.slug}`,
     },
   }
@@ -89,9 +85,7 @@ export function generateWebsiteSchema(site: WebsiteSchemaInput) {
   }
 }
 
-export function generateBreadcrumbSchema(
-  items: Array<{ name: string; url: string }>,
-) {
+export function generateBreadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -101,5 +95,85 @@ export function generateBreadcrumbSchema(
       name: item.name,
       item: item.url,
     })),
+  }
+}
+
+interface OrganizationSchemaInput {
+  name: string
+  description?: string
+  logoUrl?: string
+  contactEmail?: string
+  socialLinks?: {
+    facebook?: string
+    twitter?: string
+    instagram?: string
+    youtube?: string
+    linkedin?: string
+  }
+}
+
+export function generateOrganizationSchema(org: OrganizationSchemaInput) {
+  const sameAs = org.socialLinks
+    ? Object.values(org.socialLinks).filter(Boolean)
+    : []
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: org.name,
+    url: APP_URL,
+    description: org.description,
+    logo: org.logoUrl,
+    contactPoint: org.contactEmail
+      ? {
+          '@type': 'ContactPoint',
+          email: org.contactEmail,
+          contactType: 'customer service',
+        }
+      : undefined,
+    sameAs: sameAs.length > 0 ? sameAs : undefined,
+  }
+}
+
+interface FAQSchemaInput {
+  questions: Array<{ question: string; answer: string }>
+}
+
+export function generateFAQSchema(faq: FAQSchemaInput) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.questions.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.answer,
+      },
+    })),
+  }
+}
+
+export function generateCollectionPageSchema(
+  name: string,
+  description: string,
+  products: Array<{ title: string; slug: string; price: number; imageUrl?: string }>,
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url: `${APP_URL}/products`,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: products.length,
+      itemListElement: products.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${APP_URL}/products/${p.slug}`,
+        name: p.title,
+      })),
+    },
   }
 }

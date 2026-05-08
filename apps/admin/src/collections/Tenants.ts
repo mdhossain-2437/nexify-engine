@@ -151,5 +151,38 @@ export const Tenants: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'stripeCustomerId',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Stripe customer ID for subscription billing',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'stripeSubscriptionId',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Active Stripe subscription ID',
+        readOnly: true,
+      },
+    },
+    {
+      name: 'subscriptionStatus',
+      type: 'select',
+      defaultValue: 'none',
+      options: [
+        { label: 'None', value: 'none' },
+        { label: 'Active', value: 'active' },
+        { label: 'Past Due', value: 'past_due' },
+        { label: 'Cancelled', value: 'cancelled' },
+        { label: 'Trialing', value: 'trialing' },
+      ],
+      admin: {
+        position: 'sidebar',
+      },
+    },
   ],
 }

@@ -14,20 +14,23 @@
     "db:seed": "cross-env PAYLOAD_CONFIG_PATH=src/payload.config.ts tsx src/seed/index.ts"
   },
   "dependencies": {
+    "@nexify/types": "workspace:*",
     "@payloadcms/db-postgres": "^3.14.0",
     "@payloadcms/next": "^3.14.0",
-    "@payloadcms/richtext-lexical": "^3.14.0",
     "@payloadcms/plugin-cloud-storage": "^3.14.0",
+    "@payloadcms/richtext-lexical": "^3.14.0",
     "cross-env": "^7.0.3",
+    "ioredis": "^5.10.1",
+    "meilisearch": "^0.58.0",
     "next": "15.4.11",
     "payload": "^3.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.33.0",
-    "stripe": "^17.0.0",
-    "@nexify/types": "workspace:*"
+    "stripe": "^17.0.0"
   },
   "devDependencies": {
+    "@types/ioredis": "^5.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

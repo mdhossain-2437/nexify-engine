@@ -18,6 +18,13 @@ import { TenantSettings } from './globals/TenantSettings'
 import { stripeCheckoutHandler } from './endpoints/stripe-checkout'
 import { stripeWebhookHandler } from './endpoints/stripe-webhook'
 import { analyticsHandler } from './endpoints/analytics'
+import { searchHandler } from './endpoints/search'
+import { searchSyncHandler } from './endpoints/search-sync'
+import {
+  subscriptionPlansHandler,
+  createSubscriptionHandler,
+  manageBillingHandler,
+} from './endpoints/stripe-subscription'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -60,6 +67,31 @@ export default buildConfig({
       path: '/analytics',
       method: 'get',
       handler: analyticsHandler,
+    },
+    {
+      path: '/search',
+      method: 'get',
+      handler: searchHandler,
+    },
+    {
+      path: '/search/sync',
+      method: 'post',
+      handler: searchSyncHandler,
+    },
+    {
+      path: '/subscription/plans',
+      method: 'get',
+      handler: subscriptionPlansHandler,
+    },
+    {
+      path: '/subscription/create',
+      method: 'post',
+      handler: createSubscriptionHandler,
+    },
+    {
+      path: '/subscription/manage',
+      method: 'post',
+      handler: manageBillingHandler,
     },
   ],
 
