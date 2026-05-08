@@ -74,6 +74,15 @@ export const Tenants: CollectionConfig = {
       relationTo: 'media',
     },
     {
+      name: 'activeTheme',
+      type: 'relationship',
+      relationTo: 'themes',
+      admin: {
+        description: 'Active theme for this tenant storefront',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'themeConfig',
       type: 'group',
       fields: [

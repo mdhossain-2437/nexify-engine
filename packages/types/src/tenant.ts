@@ -11,6 +11,7 @@ export interface Tenant {
   storageLimit: number
   contactEmail: string | null
   socialLinks: SocialLinks | null
+  activeTheme: string | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
   subscriptionStatus: SubscriptionStatus
