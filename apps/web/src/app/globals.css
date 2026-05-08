@@ -6,9 +6,25 @@
   /* RGB triples power Tailwind's `<alpha-value>` resolution (e.g. bg-primary/10). */
   --color-primary-rgb: 37 99 235;
   --color-secondary-rgb: 100 116 139;
+  --color-accent-rgb: 245 158 11;
   --color-primary: rgb(var(--color-primary-rgb));
   --color-secondary: rgb(var(--color-secondary-rgb));
-  --font-family: 'Inter', system-ui, sans-serif;
+  --color-accent: rgb(var(--color-accent-rgb));
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-family: var(--font-body);
+  --font-size-base: 16px;
+  --font-weight-heading: 700;
+  --radius: 8px;
+  --container-width: 1280px;
 }
 
 html {

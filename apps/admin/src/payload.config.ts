@@ -14,6 +14,11 @@ import { BlogPosts } from './collections/BlogPosts'
 import { Media } from './collections/Media'
 import { Payments } from './collections/Payments'
 import { Wishlists } from './collections/Wishlists'
+import { Themes } from './collections/Themes'
+import { Plugins } from './collections/Plugins'
+import { TenantPlugins } from './collections/TenantPlugins'
+import { Menus } from './collections/Menus'
+import { Widgets } from './collections/Widgets'
 import { TenantSettings } from './globals/TenantSettings'
 import { stripeCheckoutHandler } from './endpoints/stripe-checkout'
 import { stripeWebhookHandler } from './endpoints/stripe-webhook'
@@ -25,6 +30,14 @@ import {
   createSubscriptionHandler,
   manageBillingHandler,
 } from './endpoints/stripe-subscription'
+import { listThemesHandler, themePreviewHandler, seedThemesHandler } from './endpoints/themes'
+import {
+  listPluginsHandler,
+  tenantPluginsHandler,
+  installPluginHandler,
+  togglePluginHandler,
+  seedPluginsHandler,
+} from './endpoints/plugins'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -48,6 +61,11 @@ export default buildConfig({
     Media,
     Payments,
     Wishlists,
+    Themes,
+    Plugins,
+    TenantPlugins,
+    Menus,
+    Widgets,
   ],
 
   globals: [TenantSettings],
@@ -92,6 +110,46 @@ export default buildConfig({
       path: '/subscription/manage',
       method: 'post',
       handler: manageBillingHandler,
+    },
+    {
+      path: '/themes',
+      method: 'get',
+      handler: listThemesHandler,
+    },
+    {
+      path: '/themes/preview',
+      method: 'get',
+      handler: themePreviewHandler,
+    },
+    {
+      path: '/themes/seed',
+      method: 'post',
+      handler: seedThemesHandler,
+    },
+    {
+      path: '/plugins',
+      method: 'get',
+      handler: listPluginsHandler,
+    },
+    {
+      path: '/plugins/tenant',
+      method: 'get',
+      handler: tenantPluginsHandler,
+    },
+    {
+      path: '/plugins/install',
+      method: 'post',
+      handler: installPluginHandler,
+    },
+    {
+      path: '/plugins/toggle',
+      method: 'post',
+      handler: togglePluginHandler,
+    },
+    {
+      path: '/plugins/seed',
+      method: 'post',
+      handler: seedPluginsHandler,
     },
   ],
 

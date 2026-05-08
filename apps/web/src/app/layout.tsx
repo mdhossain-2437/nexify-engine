@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { AuthProvider } from '@/components/auth-provider'
+import { ThemeProvider } from '@/lib/theme-provider'
 import './globals.css'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -41,11 +42,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="h-full">
       <body className="flex min-h-screen flex-col bg-white text-gray-900 antialiased">
         <AuthProvider>
-          <SiteHeader />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <SiteFooter />
+          <ThemeProvider>
+            <SiteHeader />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+            <SiteFooter />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>
