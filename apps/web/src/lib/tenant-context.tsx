@@ -35,7 +35,10 @@ function hexToRgbTriple(value: string | null | undefined, fallback: string): str
   const hex = value.trim().replace(/^#/, '')
   const expanded =
     hex.length === 3
-      ? hex.split('').map((c) => c + c).join('')
+      ? hex
+          .split('')
+          .map((c) => c + c)
+          .join('')
       : hex.length === 6
         ? hex
         : null

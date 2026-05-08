@@ -1,5 +1,9 @@
 import type { CollectionConfig } from 'payload'
-import { tenantIsolatedReadAccess, tenantCreateAccess, tenantIsolatedWriteAccess } from '../access/roles'
+import {
+  tenantIsolatedReadAccess,
+  tenantCreateAccess,
+  tenantIsolatedWriteAccess,
+} from '../access/roles'
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
@@ -39,16 +43,14 @@ export const Orders: CollectionConfig = {
       type: 'relationship',
       relationTo: 'users',
       admin: {
-        description:
-          'Authenticated user who placed the order. Empty for guest checkouts.',
+        description: 'Authenticated user who placed the order. Empty for guest checkouts.',
       },
     },
     {
       name: 'customerEmail',
       type: 'email',
       admin: {
-        description:
-          'Email captured at checkout. Always populated, even for guests.',
+        description: 'Email captured at checkout. Always populated, even for guests.',
       },
     },
     {

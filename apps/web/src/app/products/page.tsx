@@ -44,7 +44,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const totalPages = productsResponse.totalPages || 1
   const totalDocs = productsResponse.totalDocs
 
-  const buildHref = (next: Partial<{ category?: string; q?: string; sort?: string; featured?: string }>) => {
+  const buildHref = (
+    next: Partial<{ category?: string; q?: string; sort?: string; featured?: string }>,
+  ) => {
     const params = new URLSearchParams()
     if (query) params.set('q', query)
     if (category) params.set('category', category)
@@ -77,7 +79,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[220px_1fr]">
         <aside className="space-y-8">
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Categories</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              Categories
+            </h2>
             <ul className="space-y-1 text-sm">
               <li>
                 <Link
@@ -94,7 +98,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   <Link
                     href={buildHref({ category: cat.slug })}
                     className={`block rounded-md px-3 py-1.5 transition-colors ${
-                      category === cat.slug ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'
+                      category === cat.slug
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     {cat.name}
@@ -105,14 +111,20 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           </div>
 
           <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Sort</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              Sort
+            </h2>
             <ul className="space-y-1 text-sm">
               {SORT_OPTIONS.map((option) => (
                 <li key={option.value}>
                   <Link
-                    href={buildHref({ sort: option.value === '-createdAt' ? undefined : option.value })}
+                    href={buildHref({
+                      sort: option.value === '-createdAt' ? undefined : option.value,
+                    })}
                     className={`block rounded-md px-3 py-1.5 transition-colors ${
-                      sort === option.value ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'
+                      sort === option.value
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     {option.label}

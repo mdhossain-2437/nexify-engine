@@ -47,27 +47,32 @@ nexify-engine/
 ### Setup
 
 1. Clone the repo and install dependencies:
+
 ```bash
 pnpm install
 ```
 
 2. Set up environment variables:
+
 ```bash
 cp apps/admin/.env.example apps/admin/.env
 cp apps/web/.env.example apps/web/.env
 ```
 
 3. Start PostgreSQL and create the database:
+
 ```bash
 createdb nexify
 ```
 
 4. Run development servers:
+
 ```bash
 pnpm dev
 ```
 
 5. Seed the database with demo data:
+
 ```bash
 pnpm db:seed
 ```
@@ -86,21 +91,23 @@ pnpm db:seed
 
 ## Roles
 
-| Role | Access |
-|------|--------|
-| Super Admin | Full platform access, tenant management |
-| Tenant Admin | Full access to own tenant's data |
-| Staff | Limited access within tenant |
-| Customer | Public storefront + order history |
+| Role         | Access                                  |
+| ------------ | --------------------------------------- |
+| Super Admin  | Full platform access, tenant management |
+| Tenant Admin | Full access to own tenant's data        |
+| Staff        | Limited access within tenant            |
+| Customer     | Public storefront + order history       |
 
 ## Core Features
 
 ### Super Admin
+
 - Tenant creation and management
 - Plan assignment and storage limits
 - Global system settings
 
 ### Client Admin (per tenant)
+
 - Product CRUD with variants, SKUs, images
 - Category management
 - Order management with status tracking
@@ -110,6 +117,7 @@ pnpm db:seed
 - Theme configuration
 
 ### Public Storefront
+
 - Shared `<SiteHeader />` and `<SiteFooter />` rendered from the root layout, with a hydration-safe cart badge that surfaces total item count on every page
 - Homepage with dynamic content blocks and live featured products
 - Product listing with `?q=` search, `?category=` filter, sortable, paginated
@@ -123,6 +131,7 @@ pnpm db:seed
 - `next/image` everywhere, with `remotePatterns` derived from `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_IMAGE_HOSTS`
 
 ### Payments (Stripe)
+
 - Stripe Checkout integration for card payments
 - Webhook handler for payment confirmation (`checkout.session.completed`, `checkout.session.expired`)
 - Automatic order status updates on payment events
@@ -131,6 +140,7 @@ pnpm db:seed
 - API endpoints: `POST /api/stripe/checkout`, `POST /api/stripe/webhook`
 
 ### SEO
+
 - Dynamic meta tags per page/product
 - OpenGraph support
 - SEO fields on all content types
@@ -140,6 +150,7 @@ pnpm db:seed
 - JSON-LD schema markup (Product, WebSite, BreadcrumbList, BlogPosting)
 
 ### Analytics Dashboard
+
 - Revenue overview (total, monthly trends)
 - Order statistics by status
 - Product inventory summary
@@ -152,20 +163,22 @@ pnpm db:seed
 ## Environment Variables
 
 ### Admin (`apps/admin/.env`)
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URI` | PostgreSQL connection string |
-| `PAYLOAD_SECRET` | Payload CMS secret (min 32 chars) |
-| `STRIPE_SECRET_KEY` | Stripe secret key (optional) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret (optional) |
-| `NEXT_PUBLIC_STRIPE_PUBLIC_KEY` | Stripe publishable key (optional) |
+
+| Variable                        | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| `DATABASE_URI`                  | PostgreSQL connection string             |
+| `PAYLOAD_SECRET`                | Payload CMS secret (min 32 chars)        |
+| `STRIPE_SECRET_KEY`             | Stripe secret key (optional)             |
+| `STRIPE_WEBHOOK_SECRET`         | Stripe webhook signing secret (optional) |
+| `NEXT_PUBLIC_STRIPE_PUBLIC_KEY` | Stripe publishable key (optional)        |
 
 ### Web (`apps/web/.env`)
-| Variable | Description |
-|----------|-------------|
-| `PAYLOAD_API_URL` | Payload CMS API URL (server-side) |
+
+| Variable              | Description                       |
+| --------------------- | --------------------------------- |
+| `PAYLOAD_API_URL`     | Payload CMS API URL (server-side) |
 | `NEXT_PUBLIC_API_URL` | Payload CMS API URL (client-side) |
-| `NEXT_PUBLIC_APP_URL` | Public storefront URL |
+| `NEXT_PUBLIC_APP_URL` | Public storefront URL             |
 
 ## Quality
 

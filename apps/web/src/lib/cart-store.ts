@@ -22,7 +22,11 @@ interface CartState {
   items: CartItem[]
   addItem: (item: CartItem) => void
   removeItem: (productId: string | number, variantIndex?: number | null) => void
-  updateQuantity: (productId: string | number, variantIndex: number | null | undefined, quantity: number) => void
+  updateQuantity: (
+    productId: string | number,
+    variantIndex: number | null | undefined,
+    quantity: number,
+  ) => void
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number

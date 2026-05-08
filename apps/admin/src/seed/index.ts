@@ -135,7 +135,8 @@ async function seed() {
         tenant: tenantId,
         seo: {
           title: 'Wireless Headphones Pro - Premium Sound Quality',
-          description: 'Experience premium audio with our Wireless Headphones Pro. Active noise cancellation, 30-hour battery life.',
+          description:
+            'Experience premium audio with our Wireless Headphones Pro. Active noise cancellation, 30-hour battery life.',
         },
       },
       {
@@ -150,7 +151,8 @@ async function seed() {
         tenant: tenantId,
         seo: {
           title: 'Smart Watch Ultra - Advanced Fitness Tracking',
-          description: 'Track your fitness goals with Smart Watch Ultra. GPS, heart rate monitoring, and more.',
+          description:
+            'Track your fitness goals with Smart Watch Ultra. GPS, heart rate monitoring, and more.',
         },
       },
       {
@@ -204,7 +206,8 @@ async function seed() {
         ],
         seo: {
           title: 'Demo Store - Your Online Shopping Destination',
-          description: 'Discover amazing products at great prices. Shop electronics, clothing, and more.',
+          description:
+            'Discover amazing products at great prices. Shop electronics, clothing, and more.',
         },
       },
     })

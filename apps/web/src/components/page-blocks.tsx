@@ -89,7 +89,14 @@ function ImageTextBlock({ block }: { block: PayloadBlock }) {
       >
         <div className="relative aspect-video overflow-hidden rounded-2xl bg-gray-100">
           {image && (
-            <Image src={image} alt={heading} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" unoptimized />
+            <Image
+              src={image}
+              alt={heading}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+              unoptimized
+            />
           )}
         </div>
         <div>
@@ -103,7 +110,13 @@ function ImageTextBlock({ block }: { block: PayloadBlock }) {
   )
 }
 
-async function ProductGridBlock({ blockKey, block }: { blockKey: string; block: PayloadBlock }): Promise<ReactNode> {
+async function ProductGridBlock({
+  blockKey,
+  block,
+}: {
+  blockKey: string
+  block: PayloadBlock
+}): Promise<ReactNode> {
   const limit = typeof block.limit === 'number' ? block.limit : 8
   const featured = block.source === 'featured'
   const response = await listProducts({ featured: featured || undefined, limit })
@@ -114,9 +127,7 @@ async function ProductGridBlock({ blockKey, block }: { blockKey: string; block: 
   return (
     <section key={blockKey} className="section-padding">
       <div className="container-custom">
-        {!!block.heading && (
-          <h2 className="mb-8 text-3xl font-bold">{String(block.heading)}</h2>
-        )}
+        {!!block.heading && <h2 className="mb-8 text-3xl font-bold">{String(block.heading)}</h2>}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -145,9 +156,7 @@ function BannerBlock({ block }: { block: PayloadBlock }) {
         )}
         <div className="relative z-10 max-w-2xl">
           {heading && <h2 className="text-3xl font-bold md:text-4xl">{heading}</h2>}
-          {!!block.subheading && (
-            <p className="mt-3 text-gray-200">{String(block.subheading)}</p>
-          )}
+          {!!block.subheading && <p className="mt-3 text-gray-200">{String(block.subheading)}</p>}
           {!!(block.ctaLink && block.ctaText) && (
             <Link href={String(block.ctaLink)} className="btn-primary mt-6 bg-white !text-gray-900">
               {String(block.ctaText)}
@@ -176,10 +185,7 @@ function TestimonialsBlock({ block }: { block: PayloadBlock }) {
         )}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {list.map((t, i) => (
-            <figure
-              key={i}
-              className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
-            >
+            <figure key={i} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <blockquote className="text-gray-700">“{t.quote ?? ''}”</blockquote>
               <figcaption className="mt-4 text-sm">
                 <span className="font-semibold">{t.author ?? ''}</span>
@@ -227,15 +233,16 @@ function FaqBlock({ block }: { block: PayloadBlock }) {
   return (
     <section className="section-padding">
       <div className="container-custom max-w-3xl">
-        {!!block.heading && (
-          <h2 className="mb-8 text-3xl font-bold">{String(block.heading)}</h2>
-        )}
+        {!!block.heading && <h2 className="mb-8 text-3xl font-bold">{String(block.heading)}</h2>}
         <div className="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white">
           {items.map((item, i) => (
             <details key={i} className="group p-5">
               <summary className="flex cursor-pointer list-none items-center justify-between text-base font-semibold text-gray-900">
                 <span>{item.question ?? ''}</span>
-                <span aria-hidden className="text-primary transition-transform group-open:rotate-45">
+                <span
+                  aria-hidden
+                  className="text-primary transition-transform group-open:rotate-45"
+                >
                   +
                 </span>
               </summary>

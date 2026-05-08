@@ -43,9 +43,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const image = mediaUrl(post.featuredImage)
   const authorName =
-    typeof post.author === 'object' && post.author
-      ? post.author.name || post.author.email
-      : null
+    typeof post.author === 'object' && post.author ? post.author.name || post.author.email : null
 
   return (
     <article className="container-custom max-w-3xl section-padding">
@@ -80,20 +78,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <p className="mt-3 text-sm text-gray-500">
             {authorName && <span>{authorName}</span>}
             {authorName && post.publishedAt && <span> · </span>}
-            {post.publishedAt && <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>}
+            {post.publishedAt && (
+              <time dateTime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+            )}
           </p>
         )}
       </header>
 
       {image && (
         <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-2xl bg-gray-50">
-          <Image src={image} alt={post.title} fill priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" unoptimized />
+          <Image
+            src={image}
+            alt={post.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-cover"
+            unoptimized
+          />
         </div>
       )}
 
-      {post.excerpt && (
-        <p className="mb-8 text-lg leading-relaxed text-gray-600">{post.excerpt}</p>
-      )}
+      {post.excerpt && <p className="mb-8 text-lg leading-relaxed text-gray-600">{post.excerpt}</p>}
 
       <div className="prose-storefront">
         <RichTextRenderer content={post.content} />
@@ -102,7 +108,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       {post.tags && post.tags.length > 0 && (
         <div className="mt-10 flex flex-wrap gap-2">
           {post.tags.map((t, i) => (
-            <span key={`${t.tag}-${i}`} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+            <span
+              key={`${t.tag}-${i}`}
+              className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"
+            >
               #{t.tag}
             </span>
           ))}

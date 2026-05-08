@@ -2,8 +2,7 @@ import type { Config } from 'tailwindcss'
 
 /** Build a Tailwind color value that resolves to a CSS variable plus
  *  Tailwind's `<alpha-value>` placeholder so opacity modifiers work. */
-const withAlpha = (variable: string) =>
-  `rgb(var(${variable}) / <alpha-value>)`
+const withAlpha = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`
 
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],

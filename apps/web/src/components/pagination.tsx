@@ -71,7 +71,10 @@ function PageLink({
     )
   }
   return (
-    <Link href={href} className={`${cls} border-gray-200 text-gray-700 hover:border-primary hover:text-primary`}>
+    <Link
+      href={href}
+      className={`${cls} border-gray-200 text-gray-700 hover:border-primary hover:text-primary`}
+    >
       {label}
     </Link>
   )

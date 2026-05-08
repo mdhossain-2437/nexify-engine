@@ -1,14 +1,14 @@
 export interface Page {
-  id: string;
-  tenantId: string;
-  title: string;
-  slug: string;
-  contentBlocks: ContentBlock[];
-  seoTitle: string | null;
-  seoDescription: string | null;
-  status: 'draft' | 'published';
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  tenantId: string
+  title: string
+  slug: string
+  contentBlocks: ContentBlock[]
+  seoTitle: string | null
+  seoDescription: string | null
+  status: 'draft' | 'published'
+  createdAt: string
+  updatedAt: string
 }
 
 export type ContentBlockType =
@@ -21,11 +21,11 @@ export type ContentBlockType =
   | 'cta'
   | 'faq'
   | 'banner'
-  | 'custom_html';
+  | 'custom_html'
 
 export interface ContentBlock {
-  id: string;
-  type: ContentBlockType;
-  data: Record<string, unknown>;
-  order: number;
+  id: string
+  type: ContentBlockType
+  data: Record<string, unknown>
+  order: number
 }

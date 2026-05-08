@@ -134,7 +134,10 @@ export default function CheckoutPage() {
       <h1 className="mb-8 text-3xl font-bold">Checkout</h1>
 
       {error && (
-        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+        <div
+          role="alert"
+          className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700"
+        >
           {error}
         </div>
       )}
@@ -147,12 +150,36 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field label="Full name" name="fullName" autoComplete="name" required />
                 <Field label="Phone" name="phone" type="tel" autoComplete="tel" required />
-                <Field label="Email" name="email" type="email" autoComplete="email" className="md:col-span-2" required />
-                <Field label="Address line 1" name="addressLine1" autoComplete="address-line1" className="md:col-span-2" required />
-                <Field label="Address line 2" name="addressLine2" autoComplete="address-line2" className="md:col-span-2" />
+                <Field
+                  label="Email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  className="md:col-span-2"
+                  required
+                />
+                <Field
+                  label="Address line 1"
+                  name="addressLine1"
+                  autoComplete="address-line1"
+                  className="md:col-span-2"
+                  required
+                />
+                <Field
+                  label="Address line 2"
+                  name="addressLine2"
+                  autoComplete="address-line2"
+                  className="md:col-span-2"
+                />
                 <Field label="City" name="city" autoComplete="address-level2" required />
                 <Field label="Postal code" name="postalCode" autoComplete="postal-code" required />
-                <Field label="Country" name="country" autoComplete="country-name" defaultValue="United States" required />
+                <Field
+                  label="Country"
+                  name="country"
+                  autoComplete="country-name"
+                  defaultValue="United States"
+                  required
+                />
               </div>
             </fieldset>
 
@@ -197,7 +224,11 @@ export default function CheckoutPage() {
               <span className="font-bold">{formatPrice(total)}</span>
             </div>
             <button type="submit" disabled={loading} className="btn-primary mt-6 w-full">
-              {loading ? 'Processing…' : paymentMethod === 'stripe' ? 'Pay with Stripe' : 'Place order'}
+              {loading
+                ? 'Processing…'
+                : paymentMethod === 'stripe'
+                  ? 'Pay with Stripe'
+                  : 'Place order'}
             </button>
             <p className="mt-3 text-center text-xs text-gray-400">
               By placing your order you agree to our{' '}

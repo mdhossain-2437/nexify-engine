@@ -12,13 +12,11 @@ export default function TermsPage() {
       <p className="mt-2 text-sm text-gray-500">Last updated: today</p>
       <div className="prose-storefront mt-8">
         <p>
-          This is a sample terms-of-service template bundled with Nexify Engine. Replace it with your
-          actual terms before going to production.
+          This is a sample terms-of-service template bundled with Nexify Engine. Replace it with
+          your actual terms before going to production.
         </p>
         <h2>1. Acceptance</h2>
-        <p>
-          By using this site you agree to be bound by these terms and our privacy policy.
-        </p>
+        <p>By using this site you agree to be bound by these terms and our privacy policy.</p>
         <h2>2. Orders</h2>
         <p>
           Orders are subject to availability. We reserve the right to refuse or cancel orders at any
@@ -26,18 +24,18 @@ export default function TermsPage() {
         </p>
         <h2>3. Payment</h2>
         <p>
-          Payments are processed by our payment partners (e.g. Stripe). You agree to provide accurate
-          information at checkout.
+          Payments are processed by our payment partners (e.g. Stripe). You agree to provide
+          accurate information at checkout.
         </p>
         <h2>4. Liability</h2>
         <p>
-          To the maximum extent permitted by law, we are not liable for any indirect or consequential
-          damages arising from use of the service.
+          To the maximum extent permitted by law, we are not liable for any indirect or
+          consequential damages arising from use of the service.
         </p>
         <h2>5. Changes</h2>
         <p>
-          We may update these terms periodically. Continued use of the service after a change constitutes
-          acceptance of the new terms.
+          We may update these terms periodically. Continued use of the service after a change
+          constitutes acceptance of the new terms.
         </p>
       </div>
     </div>

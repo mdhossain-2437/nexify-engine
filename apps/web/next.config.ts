@@ -28,7 +28,9 @@ function imageRemotePatterns(): NonNullable<NonNullable<NextConfig['images']>['r
     }
   }
 
-  const extra = process.env.NEXT_PUBLIC_IMAGE_HOSTS?.split(',').map((s) => s.trim()).filter(Boolean)
+  const extra = process.env.NEXT_PUBLIC_IMAGE_HOSTS?.split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   for (const host of extra ?? []) {
     patterns.push({ protocol: 'https', hostname: host })
   }

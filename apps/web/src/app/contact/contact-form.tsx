@@ -32,19 +32,32 @@ export function ContactForm() {
       }}
     >
       {status === 'success' && (
-        <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <div
+          role="status"
+          className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+        >
           Thanks — your message has been received. We&apos;ll be in touch soon.
         </div>
       )}
       {status === 'error' && error && (
-        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Input id="contact-name" name="name" label="Name" autoComplete="name" required />
-        <Input id="contact-email" name="email" type="email" label="Email" autoComplete="email" required />
+        <Input
+          id="contact-email"
+          name="email"
+          type="email"
+          label="Email"
+          autoComplete="email"
+          required
+        />
       </div>
       <Input id="contact-subject" name="subject" label="Subject" required />
       <div>
