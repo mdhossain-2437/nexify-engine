@@ -10,21 +10,21 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: 'Nexify Engine',
-    template: '%s | Nexify Engine',
+    default: 'NexifyStore — Shop Quality Products Online',
+    template: '%s | NexifyStore',
   },
-  description: 'Modern multi-tenant CMS and ecommerce platform.',
+  description: 'Shop the latest products with free shipping, secure payments, and 30-day returns. Your premier online shopping destination.',
   openGraph: {
     type: 'website',
-    siteName: 'Nexify Engine',
-    title: 'Nexify Engine',
-    description: 'Modern multi-tenant CMS and ecommerce platform.',
+    siteName: 'NexifyStore',
+    title: 'NexifyStore — Shop Quality Products Online',
+    description: 'Shop the latest products with free shipping, secure payments, and 30-day returns.',
     url: APP_URL,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexify Engine',
-    description: 'Modern multi-tenant CMS and ecommerce platform.',
+    title: 'NexifyStore — Shop Quality Products Online',
+    description: 'Shop the latest products with free shipping, secure payments, and 30-day returns.',
   },
   icons: {
     icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],

@@ -98,10 +98,7 @@ export const stripeCheckoutHandler: PayloadHandler = async (req) => {
     const { default: Stripe } = await import('stripe')
     const stripe = new Stripe(stripeSecretKey)
 
-    const totalAmount = body.items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    )
+    const totalAmount = body.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
     const timestamp = Date.now().toString(36).toUpperCase()
     const random = Math.random().toString(36).substring(2, 6).toUpperCase()

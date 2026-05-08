@@ -83,7 +83,14 @@ export default function CartPage() {
                 className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50"
               >
                 {item.image ? (
-                  <Image src={item.image} alt={item.title} fill sizes="96px" className="object-cover" unoptimized />
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                    unoptimized
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-gray-300">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-8 w-8">

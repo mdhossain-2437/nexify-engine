@@ -1,5 +1,9 @@
 import type { CollectionConfig } from 'payload'
-import { tenantIsolatedReadAccess, tenantCreateAccess, tenantIsolatedWriteAccess } from '../access/roles'
+import {
+  tenantIsolatedReadAccess,
+  tenantCreateAccess,
+  tenantIsolatedWriteAccess,
+} from '../access/roles'
 
 export const Payments: CollectionConfig = {
   slug: 'payments',

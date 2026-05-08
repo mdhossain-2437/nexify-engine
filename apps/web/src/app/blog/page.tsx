@@ -61,7 +61,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-gray-300">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-12 w-12">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            className="h-12 w-12"
+                          >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"

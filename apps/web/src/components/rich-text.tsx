@@ -65,9 +65,9 @@ function renderNode(node: RichTextNode, key?: string | number): ReactNode {
       )
 
     case 'heading': {
-      const Tag = (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tag ?? '')
-        ? node.tag
-        : 'h2') as keyof React.JSX.IntrinsicElements
+      const Tag = (
+        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tag ?? '') ? node.tag : 'h2'
+      ) as keyof React.JSX.IntrinsicElements
       return (
         <Tag key={key} className="mb-3 mt-6 font-bold tracking-tight">
           {children}

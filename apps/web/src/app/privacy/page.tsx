@@ -13,8 +13,8 @@ export default function PrivacyPage() {
       <p className="mt-2 text-sm text-gray-500">Last updated: today</p>
       <div className="prose-storefront mt-8">
         <p>
-          This is a sample privacy policy bundled with the Nexify Engine starter. Replace it with your
-          actual policy before going to production.
+          This is a sample privacy policy bundled with the Nexify Engine starter. Replace it with
+          your actual policy before going to production.
         </p>
         <h2>Information we collect</h2>
         <ul>
@@ -24,8 +24,8 @@ export default function PrivacyPage() {
         </ul>
         <h2>How we use your information</h2>
         <p>
-          We use the information you give us to fulfil your orders, communicate about the service, and
-          comply with our legal obligations. We do not sell your personal information.
+          We use the information you give us to fulfil your orders, communicate about the service,
+          and comply with our legal obligations. We do not sell your personal information.
         </p>
         <h2>Cookies</h2>
         <p>

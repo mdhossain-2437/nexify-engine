@@ -27,49 +27,46 @@ export const analyticsHandler: PayloadHandler = async (req) => {
 
   const tenantId =
     (req.query?.tenantId as string | undefined) ||
-    (user.tenant
-      ? typeof user.tenant === 'string'
-        ? user.tenant
-        : user.tenant.id
-      : null)
+    (user.tenant ? (typeof user.tenant === 'string' ? user.tenant : user.tenant.id) : null)
 
   if (!tenantId && user.role !== 'super_admin') {
     return Response.json({ error: 'Tenant ID required' }, { status: 400 })
   }
 
   try {
-    const [allOrders, paidOrders, pendingOrders, cancelledOrders, products, customers] = await Promise.all([
-      req.payload.find({
-        collection: 'orders',
-        where: buildWhere(tenantId),
-        limit: 0,
-      }),
-      req.payload.find({
-        collection: 'orders',
-        where: buildWhere(tenantId, { paymentStatus: { equals: 'paid' } }),
-        limit: 0,
-      }),
-      req.payload.find({
-        collection: 'orders',
-        where: buildWhere(tenantId, { orderStatus: { equals: 'pending' } }),
-        limit: 0,
-      }),
-      req.payload.find({
-        collection: 'orders',
-        where: buildWhere(tenantId, { orderStatus: { equals: 'cancelled' } }),
-        limit: 0,
-      }),
-      req.payload.find({
-        collection: 'products',
-        where: buildWhere(tenantId),
-        limit: 0,
-      }),
-      req.payload.find({
-        collection: 'users',
-        where: buildWhere(tenantId, { role: { equals: 'customer' } }),
-        limit: 0,
-      }),
-    ])
+    const [allOrders, paidOrders, pendingOrders, cancelledOrders, products, customers] =
+      await Promise.all([
+        req.payload.find({
+          collection: 'orders',
+          where: buildWhere(tenantId),
+          limit: 0,
+        }),
+        req.payload.find({
+          collection: 'orders',
+          where: buildWhere(tenantId, { paymentStatus: { equals: 'paid' } }),
+          limit: 0,
+        }),
+        req.payload.find({
+          collection: 'orders',
+          where: buildWhere(tenantId, { orderStatus: { equals: 'pending' } }),
+          limit: 0,
+        }),
+        req.payload.find({
+          collection: 'orders',
+          where: buildWhere(tenantId, { orderStatus: { equals: 'cancelled' } }),
+          limit: 0,
+        }),
+        req.payload.find({
+          collection: 'products',
+          where: buildWhere(tenantId),
+          limit: 0,
+        }),
+        req.payload.find({
+          collection: 'users',
+          where: buildWhere(tenantId, { role: { equals: 'customer' } }),
+          limit: 0,
+        }),
+      ])
 
     const recentOrders = await req.payload.find({
       collection: 'orders',
